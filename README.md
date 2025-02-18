@@ -1,10 +1,10 @@
-## OPNsense Proxy Suite
-A one-click installation program for running Clash, Sing-Box, Tun2socks, and Mosdns on OPNsense. It supports Clash subscription conversion, transparent proxying, and DNS splitting. Comes with a web control interface for configuration modifications, program control, log viewing, etc. Tested on OPNsense 24.7.11.
+## OPNsense 代理套件
+一键安装程序，用于在 OPNsense 上运行 Clash、Sing-Box、Tun2socks 和 Mosdns。支持 Clash 订阅转换、透明代理和 DNS 分流。配有 Web 控制界面，可以进行配置修改、程序控制、日志查看。在 OPNsense 24.7.11 上测试通过。
 
 ![](images/01.png)
 
-## Project Source
-This project integrates the following tools:
+## 项目源代码
+该项目集成了以下工具：
 
 [Clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
 
@@ -19,32 +19,32 @@ This project integrates the following tools:
 [Subconverter](https://github.com/tindy2013/subconverter)
 
 
-## Notes
-1. The script does not provide any subscription information. Please prepare your own Clash subscription URL. The example configuration is for reference only.
+## 注意事项
+1. 脚本不提供任何订阅信息，请准备好自己的 Clash 订阅 URL。示例配置仅供参考
 
-2. Before using the subscription feature, manually change the `CLASH_URL` variable in the `env` file; otherwise, the program will not run correctly.
+2. 使用订阅功能前，请手动修改 `env`文件中的 `CLASH_URL`变量，否则程序将无法正确运行。
 
-3. Currently, only the x86_64 platform is supported.
+3. 仅支持 x86_64 平台。
 
-## Installation
-Download and extract the compressed package, upload it to the firewall, navigate to the directory, and run the following command:
+## 安装
+下载并解压压缩包，上传到防火墙中，进入目录后运行以下命令：
 
 ```bash
 sh install.sh
 ```
 
-As shown in the figure below:  
+如图所示：
 
 ![](images/02.png)
 
-## Usage
-Please refer to the following article:  
+## 使用方法
+请参考以下文章：
 [OPNsense代理全家桶安装配置教程](https://pfchina.org/?p=14148)
 
-## FAQs
-If subscription conversion does not work, you can use [SublinkX](https://github.com/gooaclok819/sublinkX) to set up your own platform for subscription conversion.
+## 常见问题
+如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)设置自己的平台进行订阅转换。
 
-## References
+## 参考资料
 - [pfSense、OPNsense配置Xray代理教程](https://pfchina.org/?p=13013)  
 - [pfSense、OPNsense配置trojan-go教程](https://pfchina.org/?p=9885)  
 - [pfSense、OPNsense配置v2ray代理教程](https://pfchina.org/?p=4032)  
