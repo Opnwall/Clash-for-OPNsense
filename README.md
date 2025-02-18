@@ -1,5 +1,5 @@
 ## OPNsense 代理套件
-一键安装程序，用于在 OPNsense 上运行 Clash、Sing-Box、Tun2socks 和 Mosdns。支持 Clash 订阅转换、透明代理和 DNS 分流。配有 Web 控制界面，可以进行配置修改、程序控制、日志查看。在 OPNsense 24.7.11 上测试通过。
+一键安装所有代理工具，用于在 OPNsense 上运行 Clash、Sing-Box、Tun2socks 和 Mosdns。支持 Clash 订阅转换、透明代理和 DNS 分流。带 Web 控制界面，可以进行配置修改、程序控制、日志查看。在 OPNsense 24.7.11 上测试通过。
 
 ![](images/01.png)
 
@@ -20,20 +20,20 @@
 
 
 ## 注意事项
-1. 脚本不提供任何订阅信息，请准备好自己的 Clash 订阅 URL。示例配置仅供参考
+1. 脚本不提供任何订阅信息，请准备好自己的 Clash 订阅 URL，示例配置仅供参考。
 
 2. 使用订阅功能前，请手动修改 `env`文件中的 `CLASH_URL`变量，否则程序将无法正确运行。
 
 3. 仅支持 x86_64 平台。
 
-## 安装
+## 安装方法
 下载并解压压缩包，上传到防火墙中，进入目录后运行以下命令：
 
 ```bash
 sh install.sh
 ```
 
-如图所示：
+如下图所示：
 
 ![](images/02.png)
 
@@ -42,7 +42,7 @@ sh install.sh
 [OPNsense代理全家桶安装配置教程](https://pfchina.org/?p=14148)
 
 ## 常见问题
-如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)设置自己的平台进行订阅转换。
+如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)工具搭建自己的订阅转换平台。
 
 ## 参考资料
 - [pfSense、OPNsense配置Xray代理教程](https://pfchina.org/?p=13013)  
