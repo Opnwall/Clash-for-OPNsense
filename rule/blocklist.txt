@@ -1,8 +1,0 @@
-keyword:.home.arpa
-keyword:.localdomain
-domain:in-addr.arpa
-domain:ip6.arpa
-domain:jddebug.com
-regexp:^[^.]+$
-regexp:^.*[/:].*$
-regexp:^.*.lan$
