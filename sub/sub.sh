@@ -9,13 +9,6 @@ export Server_Dir=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 # 加载.env变量文件
 source $Server_Dir/env
 
-# 定义颜色变量
-GREEN="\033[32m"
-YELLOW="\033[33m"
-RED="\033[31m"
-CYAN="\033[36m"
-RESET="\033[0m"
-
 # 给二进制启动程序、脚本等添加可执行权限
 chmod +x $Server_Dir/sub/subconverter
 
@@ -129,7 +122,7 @@ raw_content=$(cat ${Server_Dir}/temp/clash.yaml)
 # 判断订阅内容是否符合clash配置文件标准
 #if echo "$raw_content" | jq 'has("proxies") and has("proxy-groups") and has("rules")' 2>/dev/null; then
 if echo "$raw_content" | awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}'; then
-  echo -e "\033[32m订阅内容符合clash标准！\033[0m"
+  echo -e "订阅内容符合clash标准！"
   echo "$raw_content" > ${Server_Dir}/temp/clash_config.yaml
 else
   # 判断订阅内容是否为base64编码
@@ -150,12 +143,12 @@ else
       if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' $converted_file; then
         echo "配置文件已成功转换成clash标准格式"
       else
-	    echo -e "\033[32m配置文件转换标准格式失败！\033[0m"
+	    echo -e "配置文件转换标准格式失败！"
 	exit 1
       fi
     fi
   else
-    echo -e "\033[32m订阅内容不符合clash标准，无法转换为配置文件！\033[0m"
+   echo -e "订阅内容不符合clash标准，无法转换为配置文件！"
     exit 1
   fi
 fi
@@ -181,7 +174,6 @@ else
     sed -E -i "" -e '/^secret: /s@(secret: ).*@\1'"${Secret}"'@g' "$Conf_Dir/config.yaml"
 fi
 
-
 ## 订阅完成
 echo -e '订阅完成！'
 
@@ -203,4 +195,3 @@ echo -e '重启clash...'
 service clash restart
 echo -e 'clash服务重启完成！'
 echo ''
-
