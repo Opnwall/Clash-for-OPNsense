@@ -22,5 +22,12 @@
         <patterns>
             <pattern>services_tun2socks.php*</pattern>
         </patterns>
-    </page-services-tun2socks>
+    </page-services-tun2socks>     
+    <page-services-sub>
+        <name>Services: sub</name>
+        <patterns>
+            <pattern>sub.php*</pattern>
+        </patterns>
+    </page-services-sub>
 </acl>
+
