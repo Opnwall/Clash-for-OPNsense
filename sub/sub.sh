@@ -16,12 +16,12 @@ chmod +x $Server_Dir/sub/subconverter
 if [[ -f "/etc/os-release" ]]; then
      . /etc/os-release
      case "$ID" in
-	 "freebsd"|"openbsd")
-	     export isBSD=true
-	 ;;
- 	 *)
-	     export isBSD=false
-	 ;;
+     "freebsd"|"openbsd")
+         export isBSD=true
+     ;;
+     *)
+         export isBSD=false
+     ;;
      esac
 fi
 
@@ -42,38 +42,38 @@ Secret=${CLASH_SECRET:-$(openssl rand -hex 32)}
 
 # 自定义action函数，实现通用action功能
 success() {
-	echo -en "  OK  \r"
-	return 0
+    echo -en "  OK  \r"
+    return 0
 }
 
 failure() {
-	local rc=$?
-	echo -en "FAILED\r"
-	[ -x /bin/plymouth ] && /bin/plymouth --details
-	return $rc
+    local rc=$?
+    echo -en "FAILED\r"
+    [ -x /bin/plymouth ] && /bin/plymouth --details
+    return $rc
 }
 
 action() {
-	local STRING rc
+    local STRING rc
 
-	STRING=$1
-	echo -n "$STRING "
-	shift
-	"$@" && success $"$STRING" || failure $"$STRING"
-	rc=$?
-	echo
-	return $rc
+    STRING=$1
+    echo -n "$STRING "
+    shift
+    "$@" && success $"$STRING" || failure $"$STRING"
+    rc=$?
+    echo
+    return $rc
 }
 
 # 判断命令是否正常执行 函数
 if_success() {
-	local ReturnStatus=$3
-	if [ $ReturnStatus -eq 0 ]; then
-		action "$1" /usr/bin/true
-	else
-		action "$2" /usr/bin/false
-		exit 1
-	fi
+    local ReturnStatus=$3
+    if [ $ReturnStatus -eq 0 ]; then
+        action "$1" /usr/bin/true
+    else
+        action "$2" /usr/bin/false
+        exit 1
+    fi
 }
 
 #################### 任务执行 ####################
@@ -97,17 +97,17 @@ Text4="配置文件config.yaml下载失败，退出启动！"
 curl -L -k -sS --retry 5 -m 10 -o $Temp_Dir/clash.yaml $URL
 ReturnStatus=$?
 if [ $ReturnStatus -ne 0 ]; then
-	# 如果使用curl下载失败，尝试使用wget进行下载
-	for i in {1..10}
-	do
-		wget -q --no-check-certificate -O $Temp_Dir/clash.yaml $URL
-		ReturnStatus=$?
-		if [ $ReturnStatus -eq 0 ]; then
-			break
-		else
-			continue
-		fi
-	done
+    # 如果使用curl下载失败，尝试使用wget进行下载
+    for i in {1..10}
+    do
+        wget -q --no-check-certificate -O $Temp_Dir/clash.yaml $URL
+        ReturnStatus=$?
+        if [ $ReturnStatus -eq 0 ]; then
+            break
+        else
+            continue
+        fi
+    done
 fi
 if_success $Text3 $Text4 $ReturnStatus
 
@@ -143,8 +143,8 @@ else
       if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' $converted_file; then
         echo "配置文件已成功转换成clash标准格式"
       else
-	    echo -e "配置文件转换标准格式失败！"
-	exit 1
+        echo -e "配置文件转换标准格式失败！"
+    exit 1
       fi
     fi
   else
@@ -174,6 +174,7 @@ else
     sed -E -i "" -e '/^secret: /s@(secret: ).*@\1'"${Secret}"'@g' "$Conf_Dir/config.yaml"
 fi
 
+
 ## 订阅完成
 echo -e '订阅完成！'
 
@@ -187,7 +188,7 @@ echo ''
 
 \cp $Conf_Dir/config.yaml $Clash_Dir/
 
-echo -e '复制配置完成！'
+echo -e '替换当前clash配置！'
 
 ## 重启服务
 
@@ -195,3 +196,4 @@ echo -e '重启clash...'
 service clash restart
 echo -e 'clash服务重启完成！'
 echo ''
+
