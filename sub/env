@@ -1,5 +1,3 @@
-# Clash订阅地址
 export CLASH_URL=''
-# Clash安全密钥
 export CLASH_SECRET=''
 
