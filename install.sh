@@ -121,12 +121,6 @@ for service in singbox clash mosdns tun2socks; do
     echo ""
 done
 
-log "$YELLOW" "clash 订阅功能..."
-log "$GREEN" "请在/usr/local/etc/clash/sub/env文件填入订阅地址。"
-log "$GREEN" "修改/usr/local/etc/clash/sub/temp/templete_config.yaml订阅模板。"
-log "$GREEN" "然后运行 sub 命令使用订阅，并参照博客文章添加自动订阅功能。"
-echo ""
-
 # 完成提示
 log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板菜单进行操作。"
 echo ""
