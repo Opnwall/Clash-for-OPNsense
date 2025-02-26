@@ -7,22 +7,24 @@ unified-delay: true
 global-client-fingerprint: chrome
 external-controller: '0.0.0.0:9090'
 external-ui: /usr/local/etc/clash/ui
-secret: 'b&ZlKTte5OnEt2Sn'
+secret: 123456
 dns:
   enable: true
-  listen: :1053
+  listen: :53
   ipv6: true
-  fake-ip-range: 28.0.0.1/8
-  enhanced-mode: fake-ip 
-  use-hosts: true 
-  nameserver:
-    - 127.0.0.1:2053 
-  fallback:
-    - 1.1.1.1 
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: 
+    - 223.5.5.5
     - 8.8.8.8
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - tls://dns.google
   fallback-filter:
-    geoip: true 
+    geoip: true
+    geoip-code: CN
     ipcidr:
       - 240.0.0.0/4
-  default-nameserver:
-    - 127.0.0.1:2053
