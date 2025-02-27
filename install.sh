@@ -24,7 +24,6 @@ SYS_HOOK_EARLY="$ROOT/etc/rc.syshook.d/early"
 PLUGINS="$ROOT/etc/inc/plugins.inc.d"
 ACTIONS="$ROOT//opnsense/service/conf/actions.d"
 
-
 # 定义日志函数
 log() {
     local color="$1"
@@ -44,6 +43,7 @@ cp -f bin/* "$BIN_DIR/" || log "$RED" "bin 文件复制失败！"
 cp -f www/* "$WWW_DIR/" || log "$RED" "www 文件复制失败！"
 cp -R sub/* "$CONF_DIR/clash/sub/" || log "$RED" "sub 文件复制失败！"
 cp -R ui/* "$CONF_DIR/clash/ui/" || log "$RED" "ui 文件复制失败！"
+cp -R rule/* "$CONF_DIR/mosdns/rule/" || log "$RED" "rule 文件复制失败！"
 cp -f plugins/* "$PLUGINS/" || log "$RED" "plugins 文件复制失败！"
 cp -f actions/* "$ACTIONS/" || log "$RED" "actions 文件复制失败！"
 cp -R menu/* "$MODELS_DIR/" || log "$RED" "menu 文件复制失败！"
@@ -87,20 +87,6 @@ cat>$SYS_HOOK_EARLY/11-tun2socks<<EOF
 service tun2socks start
 EOF
 cat>$SYS_HOOK_START/96-tun_if_up<<EOF
-#!/bin/sh
-
-# 设置执行权限
-log "$YELLOW" "添加执行权限..."
-for service in clash mosdns tun2socks; do
-    chmod +x "$BIN_DIR/$service"
-    chmod +x "$RC_DIR/$service"
-	chmod +x /usr/bin/sub
-	chmod +x /usr/local/etc/rc.d/singbox
-	chmod +x /usr/local/bin/sing-box
-	chmod +x $SYS_HOOK_EARLY/11-tun2socks
-    chmod +x $SYS_HOOK_START/96-tun_if_up
-done
-echo ""
 
 # 启用tun虚拟网卡
 ifconfig tun_0 up
@@ -109,6 +95,21 @@ log "$GREEN" "OPNsense部分版本重启后tun虚拟网卡可能会down，需要
 log "$GREEN" "脚本默认tun2socks生成的虚拟网卡名称为tun_0，如果更改，需要修改开机脚本。"
 log "$GREEN" "或手动修改/usr/local/etc/rc.syshook.d/start/96-tun_if_up文件。"
 echo ""
+
+# 设置执行权限
+log "$YELLOW" "添加执行权限..."
+chmod +x /usr/local/bin/sing-box
+chmod +x /usr/local/bin/clash
+chmod +x /usr/local/bin/tun2socks
+chmod +x /usr/local/bin/mosdns
+chmod +x /usr/bin/sub
+chmod +x /usr/local/etc/rc.d/singbox
+chmod +x /usr/local/etc/rc.d/clash
+chmod +x /usr/local/etc/rc.d/tun2socks
+chmod +x /usr/local/etc/rc.d/mosdns
+chmod +x /usr/local/bin/sing-box
+chmod +x $SYS_HOOK_EARLY/11-tun2socks
+chmod +x $SYS_HOOK_START/96-tun_if_up
 
 # 显示运行命令
 log "$YELLOW" "服务运行命令..."
@@ -121,5 +122,5 @@ for service in singbox clash mosdns tun2socks; do
 done
 
 # 完成提示
-log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板菜单进行操作。"
+log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板进行操作。"
 echo ""
