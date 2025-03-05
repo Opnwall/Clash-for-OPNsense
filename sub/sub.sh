@@ -1,5 +1,6 @@
-
 #!/bin/bash
+
+set -e  # 启用错误处理
 
 #################### 脚本初始化任务 ####################
 
@@ -12,17 +13,17 @@ source $Server_Dir/env
 # 给二进制启动程序、脚本等添加可执行权限
 chmod +x $Server_Dir/sub/subconverter
 
-
+# 判断系统类型
 if [[ -f "/etc/os-release" ]]; then
-     . /etc/os-release
-     case "$ID" in
-     "freebsd"|"openbsd")
-         export isBSD=true
-     ;;
-     *)
-         export isBSD=false
-     ;;
-     esac
+    . /etc/os-release
+    case "$ID" in
+        "freebsd"|"openbsd")
+            export isBSD=true
+        ;;
+        *)
+            export isBSD=false
+        ;;
+    esac
 fi
 
 #################### 变量设置 ####################
@@ -55,7 +56,6 @@ failure() {
 
 action() {
     local STRING rc
-
     STRING=$1
     echo -n "$STRING "
     shift
@@ -83,7 +83,6 @@ if_success() {
 echo -e '\n正在检测订阅地址...'
 Text1="Clash订阅地址可访问！"
 Text2="Clash订阅地址不可访问！"
-#curl -o /dev/null -s -m 10 --connect-timeout 10 -w %{http_code} $URL | grep '[23][0-9][0-9]' &>/dev/null
 curl -o /dev/null -L -k -sS --retry 5 -m 10 --connect-timeout 10 -w "%{http_code}" $URL | grep -E '^[23][0-9]{2}$' &>/dev/null
 ReturnStatus=$?
 if_success $Text1 $Text2 $ReturnStatus
@@ -92,14 +91,11 @@ if_success $Text1 $Text2 $ReturnStatus
 echo -e '\n正在下载Clash配置文件...'
 Text3="配置文件config.yaml下载成功！"
 Text4="配置文件config.yaml下载失败，退出启动！"
-
-# 尝试使用curl进行下载
 curl -L -k -sS --retry 5 -m 10 -o $Temp_Dir/clash.yaml $URL
 ReturnStatus=$?
 if [ $ReturnStatus -ne 0 ]; then
     # 如果使用curl下载失败，尝试使用wget进行下载
-    for i in {1..10}
-    do
+    for i in {1..10}; do
         wget -q --no-check-certificate -O $Temp_Dir/clash.yaml $URL
         ReturnStatus=$?
         if [ $ReturnStatus -eq 0 ]; then
@@ -116,48 +112,43 @@ if_success $Text3 $Text4 $ReturnStatus
 
 ## 判断订阅内容是否符合clash配置文件标准，并尝试进行转换
 echo -e '\n判断订阅内容是否符合clash配置文件标准:'
-# 加载clash配置文件内容
 raw_content=$(cat ${Server_Dir}/temp/clash.yaml)
 
 # 判断订阅内容是否符合clash配置文件标准
-#if echo "$raw_content" | jq 'has("proxies") and has("proxy-groups") and has("rules")' 2>/dev/null; then
-if echo "$raw_content" | awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}'; then
-  echo -e "订阅内容符合clash标准！"
-  echo "$raw_content" > ${Server_Dir}/temp/clash_config.yaml
+    echo "$raw_content" > /tmp/raw_content.txt
+    if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' /tmp/raw_content.txt; then
+    echo -e "订阅内容符合clash标准！"
+    echo "$raw_content" > ${Server_Dir}/temp/clash_config.yaml
 else
-  # 判断订阅内容是否为base64编码
-  if echo "$raw_content" | base64 -d &>/dev/null; then
-    # 订阅内容为base64编码，进行解码
-    decoded_content=$(echo "$raw_content" | base64 -d)
+    # 判断订阅内容是否为base64编码
+    if echo "$raw_content" | base64 -d &>/dev/null; then
+        # 订阅内容为base64编码，进行解码
+        decoded_content=$(echo "$raw_content" | base64 -d)
 
-    # 判断解码后的内容是否符合clash配置文件标准
-    #if echo "$decoded_content" | jq 'has("proxies") and has("proxy-groups") and has("rules")' 2>/dev/null; then
-    if echo "$decoded_content" | awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}'; then
-      echo "解码后的内容符合clash标准"
-      echo "$decoded_content" > ${Server_Dir}/temp/clash_config.yaml
+        # 判断解码后的内容是否符合clash配置文件标准
+            echo "$decoded_content" > /tmp/decoded_content.txt
+         if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' /tmp/decoded_content.txt; then
+            echo "解码后的内容符合clash标准"
+            echo "$decoded_content" > ${Server_Dir}/temp/clash_config.yaml
+        else
+            echo "解码后的内容不符合clash标准，尝试将其转换为标准格式"
+            ${Server_Dir}/sub/subconverter -g &>> ${Server_Dir}/logs/sub.log
+            converted_file=${Server_Dir}/temp/clash_config.yaml
+            if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' $converted_file; then
+                echo "配置文件已成功转换成clash标准格式"
+            else
+                echo -e "配置文件转换标准格式失败！"
+                exit 1
+            fi
+        fi
     else
-      echo "解码后的内容不符合clash标准，尝试将其转换为标准格式"
-      ${Server_Dir}/sub/subconverter -g &>> ${Server_Dir}/logs/sub.log
-      converted_file=${Server_Dir}/temp/clash_config.yaml
-      # 判断转换后的内容是否符合clash配置文件标准
-      if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' $converted_file; then
-        echo "配置文件已成功转换成clash标准格式"
-      else
-        echo -e "配置文件转换标准格式失败！"
-    exit 1
-      fi
+        echo -e "订阅内容不符合clash标准，无法转换为配置文件！"
+        exit 1
     fi
-  else
-   echo -e "订阅内容不符合clash标准，无法转换为配置文件！"
-    exit 1
-  fi
 fi
 
 ## Clash 配置文件重新格式化及配置
-# 取出代理相关配置 
 sed -n '/^proxies:/,$p' $Temp_Dir/clash_config.yaml > $Temp_Dir/proxy.txt
-
-# 合并形成新的config.yaml
 cat $Temp_Dir/templete_config.yaml > $Temp_Dir/config.yaml
 cat $Temp_Dir/proxy.txt >> $Temp_Dir/config.yaml
 \cp $Temp_Dir/config.yaml $Conf_Dir/
@@ -165,7 +156,6 @@ cat $Temp_Dir/proxy.txt >> $Temp_Dir/config.yaml
 # 配置Clash面板
 Work_Dir=$(cd $(dirname $0); pwd)
 Dashboard_Dir="${Work_Dir}/ui"
-
 if [[ $isBSD == false ]]; then
     sed -ri "s@^# external-ui:.*@external-ui: ${Dashboard_Dir}@g" $Conf_Dir/config.yaml
     sed -r -i '/^secret: /s@(secret: ).*@\1'${Secret}'@g' $Conf_Dir/config.yaml
@@ -173,7 +163,6 @@ else
     sed -i "" -e "s@^# external-ui:.*@external-ui: ${Dashboard_Dir}@g" "$Conf_Dir/config.yaml"
     sed -E -i "" -e '/^secret: /s@(secret: ).*@\1'"${Secret}"'@g' "$Conf_Dir/config.yaml"
 fi
-
 
 ## 订阅完成
 echo -e '订阅完成！'
@@ -185,15 +174,11 @@ echo -e "Secret: ${Secret}"
 echo ''
 
 ## 复制配置
-
 \cp $Conf_Dir/config.yaml $Clash_Dir/
-
-echo -e '替换当前clash配置！'
+echo -e '复制配置完成！'
 
 ## 重启服务
-
 echo -e '重启clash...'
 service clash restart
 echo -e 'clash服务重启完成！'
 echo ''
-
