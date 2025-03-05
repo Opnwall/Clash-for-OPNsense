@@ -149,6 +149,7 @@ fi
 
 ## Clash 配置文件重新格式化及配置
 sed -n '/^proxies:/,$p' $Temp_Dir/clash_config.yaml > $Temp_Dir/proxy.txt
+sed -i '' '/socks-port: 7891/d' $Temp_Dir/proxy.txt
 cat $Temp_Dir/templete_config.yaml > $Temp_Dir/config.yaml
 cat $Temp_Dir/proxy.txt >> $Temp_Dir/config.yaml
 \cp $Temp_Dir/config.yaml $Conf_Dir/
