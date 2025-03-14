@@ -16,7 +16,7 @@
 
 [YACD](https://github.com/haishanh/yacd) 
 
-[Subconverter](https://github.com/tindy2013/subconverter)
+[hev-socks5-tunnel]([https://github.com/tindy2013/subconverter](https://github.com/heiher/hev-socks5-tunne)
 
 
 ## 注意事项
