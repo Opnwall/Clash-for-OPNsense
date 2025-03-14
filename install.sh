@@ -79,24 +79,6 @@ echo ""
 log "$GREEN" "注意：请备份/etc/rc.conf文件，以便在系统升级或重置后恢复插件功能。"
 echo ""
 
-# 设置开机启动脚本
-log "$YELLOW" "设置开机启动脚本..."
-cat>$SYS_HOOK_EARLY/11-tun2socks<<EOF
-#!/bin/sh
-
-# 在网络启用之前，先启用tun网卡，否则会造成tun接口所对应的虚拟网卡丢失。
-service tun2socks start
-EOF
-cat>$SYS_HOOK_START/96-tun_if_up<<EOF
-
-# 启用tun虚拟网卡
-ifconfig tun_0 up
-EOF
-log "$GREEN" "OPNsense部分版本重启后tun虚拟网卡可能会down，需要设置开机时启用虚拟网卡。"
-log "$GREEN" "脚本默认tun2socks生成的虚拟网卡名称为tun_0，如果更改，需要修改开机脚本。"
-log "$GREEN" "或手动修改/usr/local/etc/rc.syshook.d/start/96-tun_if_up文件。"
-echo ""
-
 # 设置执行权限
 log "$YELLOW" "添加执行权限..."
 chmod +x /usr/local/bin/sing-box
@@ -109,8 +91,6 @@ chmod +x /usr/local/etc/rc.d/clash
 chmod +x /usr/local/etc/rc.d/tun2socks
 chmod +x /usr/local/etc/rc.d/mosdns
 chmod +x /usr/local/bin/sing-box
-chmod +x $SYS_HOOK_EARLY/11-tun2socks
-chmod +x $SYS_HOOK_START/96-tun_if_up
 
 # 显示运行命令
 log "$YELLOW" "服务运行命令..."
@@ -123,5 +103,6 @@ for service in singbox clash mosdns tun2socks; do
 done
 
 # 完成提示
+log "$GREEN" "本次更新，tun2socks使用了hev-socks5-tunnel核心，配置方法与tun2socks相同。"
 log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板进行操作。"
 echo ""
