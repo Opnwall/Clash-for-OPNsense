@@ -11,7 +11,7 @@ rcvar="tun2socks_enable"
 pidfile="/var/run/${name}.pid"
 logfile="/var/log/${name}.log"
 command="/usr/local/bin/tun2socks"
-command_args="--config /usr/local/etc/tun2socks/config.yaml"
+command_args="/usr/local/etc/tun2socks/config.yaml"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
@@ -24,6 +24,10 @@ tun2socks_start() {
         echo "${name} is already running." | tee -a "$logfile"
         return 1
     fi
+    ifconfig tun_3000 destroy || true
+    ifconfig tun3000 destroy || true
+    ifconfig tun3000 create name tun_3000
+    #ifconfig hevsocks5 destroy || true
     echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting ${name}..." | tee -a "$logfile"
     nohup ${command} ${command_args} >> "$logfile" 2>&1 &
     echo $! > "$pidfile"
@@ -38,6 +42,8 @@ tun2socks_stop() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - Stopping ${name}..." | tee -a "$logfile"
     kill $(cat "$pidfile") && rm -f "$pidfile"
     echo "$(date '+%Y-%m-%d %H:%M:%S') - ${name} has stopped." | tee -a "$logfile"
+    ifconfig tun_3000 destroy || true
+    ifconfig tun3000 destroy || true
 }
 
 tun2socks_restart() {
