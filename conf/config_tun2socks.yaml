@@ -1,18 +1,9 @@
-# ======tun2socks配置文件=======
-
-# debug / info / warning / error / silent
-loglevel: info
-
-# URL 格式: [协议://]主机[:端口]
-# 代理服务器的地址，与clash或sing-box中的socks的端口相同
-proxy: socks5://127.0.0.1:7891
-
-# URL 格式: [设备://]名称
-# TUN 设备名称，避免使用 tun0
-device: tun://tun_0
-
-# 每个数据包的最大传输单元
-mtu: 1500
-
-# 每个UDP会话的超时时间，默认值：60 秒
-udp-timeout: 60s
+tunnel:
+  name: tun_3000
+  mtu: 9000
+  multi-queue: false
+  ipv4: 198.18.0.1
+socks5:
+  port: 7891
+  address: 127.0.0.1
+  udp: 'udp'
