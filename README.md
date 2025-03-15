@@ -10,7 +10,7 @@
 
 [Sing-Box](https://github.com/SagerNet/sing-box) 
 
-[hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunne)
+[hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 
 [Mosdns](https://github.com/IrineSistiana/mosdns) 
 
