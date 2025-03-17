@@ -1,11 +1,34 @@
 <?php
 $log_file = "/var/log/sing-box.log";
+$max_lines = 5000;
+$display_lines = 200; // 前端仅显示最近 200 行
 
-// 获取日志文件内容（显示最近100条）
-$logs = file_exists($log_file) ? file_get_contents($log_file) : "日志文件不可用。";
-$log_lines = explode("\n", $logs);  // 将日志按行分割
-$recent_logs = array_slice($log_lines, -100);  // 获取最近的15条日志
-$logs = implode("\n", $recent_logs);  // 将日志重新组合为字符串
+if (!file_exists($log_file)) {
+    echo "[错误] 日志文件未找到！";
+    exit;
+}
 
-echo nl2br(htmlspecialchars($logs));  // 输出并转换特殊字符
+$log = new SplFileObject($log_file, 'r');
+$log->seek(PHP_INT_MAX);
+$total_lines = $log->key();
+
+$log_content = [];
+$log->rewind();
+
+// 只保留最后 $max_lines 行
+$start_line = max(0, $total_lines - $max_lines);
+$log->seek($start_line);
+
+while (!$log->eof()) {
+    $log_content[] = trim($log->fgets());
+}
+
+// 仅在日志超出 $max_lines 时重写文件
+if ($total_lines > $max_lines) {
+    file_put_contents($log_file, implode("\n", $log_content) . "\n");
+}
+
+// 取最近 $display_lines 行显示
+$display_content = array_slice($log_content, -$display_lines);
+echo implode("\n", $display_content);
 ?>

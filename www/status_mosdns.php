@@ -1,14 +1,13 @@
 <?php
+// status_mosdns.php
 header('Content-Type: application/json');
 
-$service_status = [];
-exec("service mosdns status", $output, $return_var);
+// 检查mosdns进程是否存在
+exec("pgrep -x mosdns", $output, $return_var);
 
 if ($return_var === 0) {
-    $service_status['status'] = "running";
+    echo json_encode(['status' => 'running']);
 } else {
-    $service_status['status'] = "stopped";
+    echo json_encode(['status' => 'stopped']);
 }
-
-echo json_encode($service_status);
 ?>

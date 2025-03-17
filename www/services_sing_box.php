@@ -10,58 +10,87 @@ $log_file = "/var/log/sing-box.log";
 // 初始化消息变量
 $message = "";
 
-// 服务控制函数
-function handleServiceAction($action)
-{
+// 执行命令的通用函数
+function execCommand($command) {
+    exec($command, $output, $return_var);
+    return [$output, $return_var];
+}
+
+// 获取开机自启状态
+function getAutostartStatus() {
+    return trim(shell_exec("sysrc -n singbox_enable")) === "YES" ? "YES" : "NO";
+}
+
+// 设置开机自启状态
+function setAutostartStatus($status) {
+    if (!in_array($status, ["YES", "NO"])) {
+        return "无效的操作！";
+    }
+    list($output, $return_var) = execCommand("sysrc singbox_enable=" . escapeshellarg($status));
+    return $return_var === 0 ? "开机自启已切换为：$status" : "切换失败！";
+}
+
+// 处理服务操作
+function handleServiceAction($action) {
     $allowedActions = ['start', 'stop', 'restart'];
     if (!in_array($action, $allowedActions)) {
         return "无效的操作！";
     }
-
-    // 清空日志文件（仅在启动或重启时）
-    if ($action === 'start' || $action === 'restart') {
-        file_put_contents("/var/log/sing-box.log", ""); // 清空日志文件
+    
+    // 仅在启动或重启时清空日志
+    if (in_array($action, ['start', 'restart'])) {
+        file_put_contents("/var/log/sing-box.log", "");
     }
 
-    // 执行服务操作
-    exec("service singbox " . escapeshellarg($action), $output, $return_var);
+    list($output, $return_var) = execCommand("service singbox " . escapeshellarg($action));
+
     $messages = [
-        'start' => ["Sing-Box服务启动成功！", "Sing-Box服务启动失败！"],
-        'stop' => ["Sing-Box服务已停止！", "Sing-Box服务停止失败！"],
-        'restart' => ["Sing-Box服务重启成功！", "Sing-Box服务重启失败！"]
+        'start' => ["sing-box服务启动成功！", "sing-box服务启动失败！"],
+        'stop' => ["sing-box服务已停止！", "sing-box服务停止失败！"],
+        'restart' => ["sing-box服务重启成功！", "sing-box服务重启失败！"]
     ];
     return $return_var === 0 ? $messages[$action][0] : $messages[$action][1];
 }
 
-// 配置保存函数
-function saveConfig($file, $content)
-{
+// 保存配置文件
+function saveConfig($file, $content) {
     if (!is_writable($file)) {
         return "配置保存失败，请确保文件可写。";
     }
 
-    if (file_put_contents($file, $content) !== false) {
-        return "配置保存成功！";
+    if (empty(trim($content))) {
+        return "配置内容不能为空！";
     }
 
-    return "配置保存失败！";
+    return file_put_contents($file, $content) !== false ? "配置保存成功！" : "配置保存失败！";
 }
 
-// 表单提交处理
-if ($_POST) {
-    $action = $_POST['action'] ?? '';
-    if ($action === 'save_config') {
-        $config_content = $_POST['config_content'] ?? '';
-        $message = saveConfig($config_file, $config_content);
-    } else {
-        $message = handleServiceAction($action);
+// 处理表单提交
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
+
+    switch ($action) {
+        case 'save_config':
+            $config_content = filter_input(INPUT_POST, 'config_content', FILTER_UNSAFE_RAW);
+            $message = saveConfig($config_file, $config_content);
+            break;
+        case 'toggle_autostart':
+            $newStatus = getAutostartStatus() === "YES" ? "NO" : "YES";
+            $message = setAutostartStatus($newStatus);
+            break;
+        default:
+            $message = handleServiceAction($action);
     }
 }
 
-// 加载配置文件内容
+// 读取配置文件内容
 $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents($config_file)) : "配置文件未找到！";
+
+// 获取开机自启状态
+$autostart_status = getAutostartStatus();
 ?>
 
+<!-- 页面表单显示 -->
 <div>
     <?php if (!empty($message)): ?>
     <div class="alert alert-info">
@@ -72,7 +101,7 @@ $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents
 <section class="page-content-main">
     <div class="container-fluid">
         <div class="row">
-            <!-- 服务状态 -->
+            <!-- 状态显示 -->
             <section class="col-xs-12">
                 <div class="content-box tab-content table-responsive __mb">
                     <table class="table table-striped">
@@ -84,9 +113,9 @@ $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents
                             </tr>
                             <tr>
                                 <td>
-                                    <div id="sing-box-status" class="alert alert-secondary">
+                                    <form id="sing-box-status" class="alert alert-secondary">
                                         <i class="fa fa-circle-notch fa-spin"></i> 检查中...
-                                    </div>
+                                    </form>
                                 </td>
                             </tr>
                         </tbody>
@@ -114,6 +143,37 @@ $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents
                                         </button>
                                         <button type="submit" name="action" value="restart" class="btn btn-warning">
                                             <i class="fa fa-refresh"></i> 重启
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- 开机自启 -->
+            <section class="col-xs-12">
+                <div class="content-box tab-content table-responsive __mb">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>开机自启</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <form id="autostart-status" class="alert <?= $autostart_status === 'YES' ? 'alert-success' : 'alert-danger' ?>">
+                                        <i class="fa <?= $autostart_status === 'YES' ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
+                                        <?= $autostart_status === 'YES' ? '已启用' : '未启用' ?>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <form method="post">
+                                        <button type="submit" name="action" value="toggle_autostart" class="btn btn-danger">
+                                            <i class="fa fa-toggle-on"></i> 切换开关
                                         </button>
                                     </form>
                                 </td>
@@ -176,20 +236,26 @@ $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents
 <script>
 // 检查服务状态
 function checkSingBoxStatus() {
-    console.log("Checking Sing-Box status..."); // 调试信息
     fetch('/status_sing_box.php', { cache: 'no-store' })
         .then(response => response.json())
         .then(data => {
             const statusElement = document.getElementById('sing-box-status');
             if (data.status === "running") {
-                statusElement.innerHTML = '<i class="fa fa-check-circle text-success"></i> Sing-Box正在运行';
+                statusElement.innerHTML = '<i class="fa fa-check-circle text-success"></i> sing-box正在运行';
                 statusElement.className = "alert alert-success";
             } else {
-                statusElement.innerHTML = '<i class="fa fa-times-circle text-danger"></i> Sing-Box已停止';
+                statusElement.innerHTML = '<i class="fa fa-times-circle text-danger"></i> sing-box已停止';
                 statusElement.className = "alert alert-danger";
             }
+        })
+        .catch(error => {
+            console.error("状态检查失败:", error.message);
+            const statusElement = document.getElementById('sing-box-status');
+            statusElement.innerHTML = '<i class="fa fa-times-circle text-danger"></i> 状态检查失败';
+            statusElement.className = "alert alert-danger";
         });
 }
+
 // 刷新日志
 function refreshLogs() {
     fetch('/status_sing_box_logs.php', { cache: 'no-store' })
@@ -206,6 +272,7 @@ function refreshLogs() {
             logViewer.scrollTop = logViewer.scrollHeight;
         });
 }
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     checkSingBoxStatus();
