@@ -40,6 +40,9 @@ mkdir -p "$CONF_DIR/sing-box" "$CONF_DIR/clash" "$CONF_DIR/clash/sub" "$CONF_DIR
 log "$YELLOW" "复制文件..."
 log "$YELLOW" "生成菜单..."
 log "$YELLOW" "生成服务..."
+log "$YELLOW" "添加权限..."
+chmod +x bin/*
+chmod +x rc.d/*
 cp -f bin/* "$BIN_DIR/" || log "$RED" "bin 文件复制失败！"
 cp -f www/* "$WWW_DIR/" || log "$RED" "www 文件复制失败！"
 cp -R -f sub/* "$CONF_DIR/clash/sub/" || log "$RED" "sub 文件复制失败！"
@@ -62,6 +65,7 @@ cat>/usr/bin/sub<<EOF
 # 启动clash订阅程序
 bash /usr/local/etc/clash/sub/sub.sh
 EOF
+chmod +x /usr/bin/sub
 
 # 安装bash
 log "$GREEN" "安装 bash"
@@ -70,7 +74,7 @@ log "$GREEN" "bash安装完成！"
 echo ""
 
 # 添加服务启动项
-log "$YELLOW" "配置系统启用服务..."
+log "$YELLOW" "配置系统服务..."
 sysrc singbox_enable="YES"
 sysrc mosdns_enable="YES"
 sysrc clash_enable="YES"
@@ -78,19 +82,6 @@ sysrc tun2socks_enable="YES"
 echo ""
 log "$GREEN" "注意：请备份/etc/rc.conf文件，以便在系统升级或重置后恢复插件功能。"
 echo ""
-
-# 设置执行权限
-log "$YELLOW" "添加执行权限..."
-chmod +x /usr/local/bin/sing-box
-chmod +x /usr/local/bin/clash
-chmod +x /usr/local/bin/tun2socks
-chmod +x /usr/local/bin/mosdns
-chmod +x /usr/bin/sub
-chmod +x /usr/local/etc/rc.d/singbox
-chmod +x /usr/local/etc/rc.d/clash
-chmod +x /usr/local/etc/rc.d/tun2socks
-chmod +x /usr/local/etc/rc.d/mosdns
-chmod +x /usr/local/bin/sing-box
 
 # 显示运行命令
 log "$YELLOW" "服务运行命令..."
@@ -103,6 +94,5 @@ for service in singbox clash mosdns tun2socks; do
 done
 
 # 完成提示
-log "$GREEN" "本次更新，tun2socks使用了hev-socks5-tunnel核心，配置方法与tun2socks相同。"
 log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板进行操作。"
 echo ""
