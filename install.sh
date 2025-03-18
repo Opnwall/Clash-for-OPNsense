@@ -89,7 +89,7 @@ for service in singbox clash mosdns tun2socks; do
     log "$CYAN" "启动:   service $service start"
     log "$CYAN" "停止:   service $service stop"
     log "$CYAN" "重启:   service $service restart"
-	log "$CYAN" "状态:   service $service status"
+    log "$CYAN" "状态:   service $service status"
     echo ""
 done
 
