@@ -34,7 +34,7 @@ log() {
 
 # 创建目录
 log "$YELLOW" "创建目录..."
-mkdir -p "$CONF_DIR/sing-box" "$CONF_DIR/clash" "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" "$CONF_DIR/mosdns/rule" || log "$RED" "目录创建失败！"
+mkdir -p "$CONF_DIR/sing-box" "$CONF_DIR/clash" "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
 
 # 复制文件
 log "$YELLOW" "复制文件..."
@@ -47,14 +47,12 @@ cp -f bin/* "$BIN_DIR/" || log "$RED" "bin 文件复制失败！"
 cp -f www/* "$WWW_DIR/" || log "$RED" "www 文件复制失败！"
 cp -R -f sub/* "$CONF_DIR/clash/sub/" || log "$RED" "sub 文件复制失败！"
 cp -R -f ui/* "$CONF_DIR/clash/ui/" || log "$RED" "ui 文件复制失败！"
-cp -R -f rule/* "$CONF_DIR/mosdns/rule/" || log "$RED" "rule 文件复制失败！"
+cp -R -f mosdns/* "$CONF_DIR/mosdns/" || log "$RED" "mosdns 文件复制失败！"
 cp -f plugins/* "$PLUGINS/" || log "$RED" "plugins 文件复制失败！"
 cp -f actions/* "$ACTIONS/" || log "$RED" "actions 文件复制失败！"
 cp -R -f menu/* "$MODELS_DIR/" || log "$RED" "menu 文件复制失败！"
 cp rc.d/* "$RC_DIR/" || log "$RED" "rc.d 文件复制失败！"
-cp geo/* "$CONF_DIR/mosdns/" || log "$RED" "geo 文件复制失败！"
 cp geo/* "$CONF_DIR/clash/" || log "$RED" "geo 文件复制失败！"
-cp conf/config_mosdns.yaml "$CONF_DIR/mosdns/config.yaml" || log "$RED" "mosdns 配置文件复制失败！"
 cp conf/config_clash.yaml "$CONF_DIR/clash/config.yaml" || log "$RED" "clash 配置文件复制失败！"
 cp conf/config_sing-box.json "$CONF_DIR/sing-box/config.json" || log "$RED" "sing-box 配置文件复制失败！"
 cp conf/config_tun2socks.yaml "$CONF_DIR/tun2socks/config.yaml" || log "$RED" "tun2socks 配置文件复制失败！"
@@ -89,7 +87,7 @@ for service in singbox clash mosdns tun2socks; do
     log "$CYAN" "启动:   service $service start"
     log "$CYAN" "停止:   service $service stop"
     log "$CYAN" "重启:   service $service restart"
-    log "$CYAN" "状态:   service $service status"
+	log "$CYAN" "状态:   service $service status"
     echo ""
 done
 
