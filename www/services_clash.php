@@ -37,8 +37,8 @@ function handleServiceAction($action) {
         return "无效的操作！";
     }
     
-    // 仅在启动或重启时清空日志
-    if (in_array($action, ['start', 'restart'])) {
+    // 重启时清空日志
+    if (in_array($action, ['restart'])) {
         file_put_contents("/var/log/clash.log", "");
     }
 
