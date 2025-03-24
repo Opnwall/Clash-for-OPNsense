@@ -53,5 +53,5 @@ sh install.sh
 - [pfSense、OPNsense设置http透明代理教程](https://pfchina.org/?p=13572)  
 - [pfSense、OPNsense配置sing-box代理教程](https://pfchina.org/?p=12933)  
 - [pfSense、OPNsense配置hysteria2代理教程](https://pfchina.org/?p=13065)  
-- [pfSense、OPNsense配置tun2socks透明代理](https://pfchina.org/?p=13437)  
+- [pfSense、OPNsense配置tun2socks透明代理](https://pfchina.org/?p=14551)  
 - [pfSense、OPNsense配置hysteria(TUN) 透明代理教程](https://pfchina.org/?p=13480)
