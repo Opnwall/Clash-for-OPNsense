@@ -91,6 +91,10 @@ for service in singbox clash mosdns tun2socks; do
     echo ""
 done
 
+# 删除菜单缓存
+rm -f /tmp/opnsense_menu_cache.xml
+rm -f /tmp/opnsense_acl_cache.json
+
 # 完成提示
-log "$GREEN" "安装完成，请重启OPNsense防火墙，然后进入Web界面，导航到服务 > 代理面板进行操作。"
+log "$GREEN" "安装完成，请刷新浏览器，然后进入Web界面，导航到服务 > 代理面板进行操作。"
 echo ""
