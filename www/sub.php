@@ -95,9 +95,9 @@ function handle_form_submission() {
             }
 
             if ($secret_saved) {
-                log_message("访问密钥已保存。");
+                log_message("安全密钥已保存。");
             } else {
-                echo "<div class='alert alert-danger'>保存访问密钥失败！</div>";
+                echo "<div class='alert alert-danger'>保存安全密钥失败！</div>";
             }
 
             header("Location: " . $_SERVER['PHP_SELF']);
@@ -144,7 +144,7 @@ $log_content = file_exists(LOG_FILE) ? htmlspecialchars(file_get_contents(LOG_FI
                                         <label for="subscribe_url">订阅地址：</label>
                                         <input type="text" id="subscribe_url" name="subscribe_url" value="<?php echo htmlspecialchars($current_url); ?>" class="form-control" placeholder="输入订阅地址" autocomplete="off" />
                                         <label for="clash_secret">访问密钥：</label>
-                                        <input type="text" id="clash_secret" name="clash_secret" value="<?php echo htmlspecialchars($current_secret); ?>" class="form-control" placeholder="输入访问密钥" autocomplete="off" />
+                                        <input type="text" id="clash_secret" name="clash_secret" value="<?php echo htmlspecialchars($current_secret); ?>" class="form-control" placeholder="输入安全密钥" autocomplete="off" />
                                         <br>
                                         <button type="submit" name="save" class="btn btn-danger"><i class="fa fa-save"></i> 保存设置</button>
                                         <button type="submit" name="action" value="立即订阅" class="btn btn-success"><i class="fa fa-sync"></i> 开始订阅</button>

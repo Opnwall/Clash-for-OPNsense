@@ -23,6 +23,7 @@ SYS_HOOK_START="$ROOT/etc/rc.syshook.d/start"
 SYS_HOOK_EARLY="$ROOT/etc/rc.syshook.d/early"
 PLUGINS="$ROOT/etc/inc/plugins.inc.d"
 ACTIONS="$ROOT//opnsense/service/conf/actions.d"
+RC_CONF="/etc/rc.conf.d/"
 
 
 # 定义日志函数
@@ -73,13 +74,7 @@ echo ""
 
 # 添加服务启动项
 log "$YELLOW" "配置系统服务..."
-sysrc singbox_enable="YES"
-sysrc mosdns_enable="YES"
-sysrc clash_enable="YES"
-sysrc tun2socks_enable="YES"
-echo ""
-log "$GREEN" "注意：请备份/etc/rc.conf文件，以便在系统升级或重置后恢复插件功能。"
-echo ""
+cp -f rc.conf/* "$RC_CONF/" || log "$RED" "rc.conf 文件复制失败！"
 
 # 显示运行命令
 log "$YELLOW" "服务运行命令..."
@@ -96,5 +91,5 @@ rm -f /tmp/opnsense_menu_cache.xml
 rm -f /tmp/opnsense_acl_cache.json
 
 # 完成提示
-log "$GREEN" "安装完成，请刷新浏览器，然后进入Web界面，导航到服务 > 代理面板进行操作。"
+log "$GREEN" "安装完成，请刷新浏览器，然后进入Web界面，导航到VPN > Proxy Suite进行操作。"
 echo ""

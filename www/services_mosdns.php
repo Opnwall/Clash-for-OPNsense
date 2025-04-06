@@ -16,20 +16,6 @@ function execCommand($command) {
     return [$output, $return_var];
 }
 
-// 获取开机自启状态
-function getAutostartStatus() {
-    return trim(shell_exec("sysrc -n mosdns_enable")) === "YES" ? "YES" : "NO";
-}
-
-// 设置开机自启状态
-function setAutostartStatus($status) {
-    if (!in_array($status, ["YES", "NO"])) {
-        return "无效的操作！";
-    }
-    list($output, $return_var) = execCommand("sysrc mosdns_enable=" . escapeshellarg($status));
-    return $return_var === 0 ? "开机自启已切换为：$status" : "切换失败！";
-}
-
 // 处理服务操作
 function handleServiceAction($action) {
     $allowedActions = ['start', 'stop', 'restart'];
@@ -85,9 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 读取配置文件内容
 $config_content = file_exists($config_file) ? htmlspecialchars(file_get_contents($config_file)) : "配置文件未找到！";
-
-// 获取开机自启状态
-$autostart_status = getAutostartStatus();
 ?>
 
 <!-- 页面表单显示 -->
@@ -143,37 +126,6 @@ $autostart_status = getAutostartStatus();
                                         </button>
                                         <button type="submit" name="action" value="restart" class="btn btn-warning">
                                             <i class="fa fa-refresh"></i> 重启
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            <!-- 开机自启 -->
-            <section class="col-xs-12">
-                <div class="content-box tab-content table-responsive __mb">
-                    <table class="table table-striped">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <strong>开机自启</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <form id="autostart-status" class="alert <?= $autostart_status === 'YES' ? 'alert-success' : 'alert-danger' ?>">
-                                        <i class="fa <?= $autostart_status === 'YES' ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
-                                        <?= $autostart_status === 'YES' ? '已启用' : '未启用' ?>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <form method="post">
-                                        <button type="submit" name="action" value="toggle_autostart" class="btn btn-danger">
-                                            <i class="fa fa-toggle-on"></i> 切换开关
                                         </button>
                                     </form>
                                 </td>
