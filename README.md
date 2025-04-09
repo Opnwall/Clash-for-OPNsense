@@ -1,14 +1,12 @@
 ## OPNsense代理套件
-一键安装代理脚本，用于在OPNsense上运行Clash、Sing-Box、Tun2socks和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.1上测试通过。
+一键安装代理脚本，用于在OPNsense上运行Clash、MosDNS和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.4上测试通过。
 
-![](images/01.png)
+![](images/proxy.png)
 
 ## 项目源代码
 该项目集成了以下工具：
 
 [Clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
-
-[Sing-Box](https://github.com/SagerNet/sing-box) 
 
 [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 
@@ -35,7 +33,7 @@ sh install.sh
 
 如下图所示：
 
-![](images/02.png)
+![](images/install.png)
 
 ## 使用方法
 请参考以下文章：
