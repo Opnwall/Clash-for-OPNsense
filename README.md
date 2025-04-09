@@ -1,5 +1,5 @@
-## OPNsense代理套件
-一键安装代理脚本，用于在OPNsense上运行Clash、MosDNS和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.4上测试通过。
+## OPNsense 代理全家桶
+代理工具一键安装脚本，用于在OPNsense上运行Clash、MosDNS和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.4上测试通过。
 
 ![](images/proxy.png)
 
@@ -18,11 +18,11 @@
 
 
 ## 注意事项
-1. 脚本不提供任何订阅信息，请准备好自己的Clash订阅URL，示例配置仅供参考。
-
-2. 使用订阅功能前，请手动修改`env`文件中的`CLASH_URL`变量，否则脚本将无法正确运行。
-
-3. 仅支持x86_64 平台。
+1. 当前仅支持x86_64 平台。
+2. 脚本不提供任何订阅信息，请准备好自己的Clash订阅URL。
+4. 脚本会自动添加tun接口、china_ip别名、分流规则，可以根据需要进行手动修改。
+5. 脚本已集成了可用的默认配置，只需替换clash的proxy和rule部分的内容即可使用。
+7. 为减少长期运行保存的日志数量，在调试完成后，请将所有配置的日志类型修改为error或warn。
 
 ## 安装方法
 下载并解压压缩包，上传到防火墙中，进入目录后运行以下命令：
@@ -43,13 +43,7 @@ sh install.sh
 如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)工具搭建自己的订阅转换平台。
 
 ## 参考资料
-- [pfSense、OPNsense配置Xray代理教程](https://pfchina.org/?p=13013)  
-- [pfSense、OPNsense配置trojan-go教程](https://pfchina.org/?p=9885)  
-- [pfSense、OPNsense配置v2ray代理教程](https://pfchina.org/?p=4032)  
-- [pfSense、OPNsense配置Clash代理教程](https://pfchina.org/?p=10526)  
-- [pfSense、OPNsense配置hysteria代理教程](https://pfchina.org/?p=9524)  
+- [pfSense、OPNsense配置MosDNS教程](https://pfchina.org/?p=14088)  
+- [pfSense、OPNsense配置Clash代理教程](https://pfchina.org/?p=10526)   
 - [pfSense、OPNsense设置http透明代理教程](https://pfchina.org/?p=13572)  
-- [pfSense、OPNsense配置sing-box代理教程](https://pfchina.org/?p=12933)  
-- [pfSense、OPNsense配置hysteria2代理教程](https://pfchina.org/?p=13065)  
-- [pfSense、OPNsense配置tun2socks透明代理](https://pfchina.org/?p=14551)  
-- [pfSense、OPNsense配置hysteria(TUN) 透明代理教程](https://pfchina.org/?p=13480)
+- [pfSense、OPNsense配置hev-socks5-tunnel透明代理教程](https://pfchina.org/?p=14551)
