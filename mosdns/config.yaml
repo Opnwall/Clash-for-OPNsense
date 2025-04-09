@@ -1,9 +1,9 @@
 #      MosDNS 优化版，支持智能 Fallback、并行查询、国内外分流。                      
 
 #       --------------------------------       使用方法        ------------------------------------------
-
 #      1、Unbound DNS默认监听端口更改为5355，其他保持默认；
-#      2、Clash配置文件默认DNS指向modns，127.0.0.1:5335；                     
+#      2、Clash配置文件默认DNS指向modns，127.0.0.1:5335；         
+#      3、配置文件local_dns请用本地运营商提供的DNS进行替换，以提高本地DNS解析速度。  
 
 log:
   level: warn  # 生产环境建议使用 warn，可调整为 info/debug 进行调试
@@ -56,7 +56,7 @@ plugins:
     args:
       upstreams:
         - tag: local_dns
-          addr: "202.101.202.101"  # 运营商提供的 DNS 服务器
+          addr: "114.114.114.114"  # 输入运营商提供的DNS，来提高本地的解析速度
 
   ## --- 远程 DNS 解析（使用 DoH）--- ##
   - tag: "remote_forward"
