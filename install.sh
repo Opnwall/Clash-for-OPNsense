@@ -176,7 +176,7 @@ else
   }
   { print }
   ' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
-    echo "别名已添加"
+    echo "别名添加完成"
     echo ""	
 fi
 
