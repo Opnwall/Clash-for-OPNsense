@@ -1,34 +1,27 @@
-#      MosDNS 优化版，支持智能 Fallback、并行查询、国内外分流。                      
-
-#       --------------------------------       使用方法        ------------------------------------------
-#      1、Unbound DNS默认监听端口更改为5355，其他保持默认；
-#      2、Clash配置文件默认DNS指向modns，127.0.0.1:5335；         
-#      3、配置文件local_dns请用本地运营商提供的DNS进行替换，以提高本地DNS解析速度。  
-
 log:
-  level: warn  # 生产环境建议使用 warn，可调整为 info/debug 进行调试
-  production: true  # 生产模式，减少调试日志
-  file: "/var/log/mosdns.log"  # 指定日志文件路径
+  level: warn
+  production: true
+  file: "/var/log/mosdns.log"
 
 plugins:
-  ## --- 缓存优化 --- ##
+  # 缓存优化
   - tag: "cache"
     type: cache
     args:
-      size: 32768  # 增加缓存大小，提高命中率
-      lazy_cache_ttl: 86400  # 缓存 TTL 24 小时（适中）
-      dump_file: "/var/db/mosdns.cache"  # 缓存持久化文件
-      dump_interval: 300  # 5 分钟写入缓存文件，减少数据丢失
+      size: 32768
+      lazy_cache_ttl: 86400
+      dump_file: "/var/db/mosdns.cache"
+      dump_interval: 300
 
-  ## --- 反向解析 PTR 记录 --- ##
+  # PTR 反向解析
   - tag: "reverse_lookup"
     type: reverse_lookup
     args:
-      size: 5000  # 缓存 5000 条 PTR 记录
-      ttl: 14400  # TTL 4 小时
-      handle_ptr: true  # 启用 PTR 解析
+      size: 5000
+      ttl: 14400
+      handle_ptr: true
 
-  ## --- 远程解析域名列表（境外网站）--- ##
+  # 境外域名集
   - tag: "remote_domain_set"
     type: domain_set
     args:
@@ -36,110 +29,116 @@ plugins:
         - "./domains/gfw.txt"
         - "./domains/proxy-list.txt"
 
-  ## --- 直连解析域名列表（国内网站）--- ##
+  # 国内域名集
   - tag: "direct_domain_set"
     type: domain_set
     args:
       files:
         - "./domains/direct-list.txt"
 
-  ## --- 直连 IP 列表（国内 IP）--- ##
+  # 国内 IP 集
   - tag: "direct_ip"
     type: ip_set
     args:
       files:
         - "./ips/all_cn.txt"
 
-  ## --- 运营商 DNS（本地解析）--- ##
+  # 本地运营商 DNS（Unbound 或 ISP）
   - tag: "local_forward"
     type: forward
     args:
       upstreams:
         - tag: local_dns
-          addr: "114.114.114.114"  # 输入运营商提供的DNS，来提高本地的解析速度
+          addr: "udp://202.101.202.101"  # 可换成你实际运营商 DNS
 
-  ## --- 远程 DNS 解析（使用 DoH）--- ##
+  # 🚀 远程 DNS（经 Clash 代理转发）
   - tag: "remote_forward"
     type: forward
     args:
       upstreams:
-        - tag: cloudflare_doh
-          addr: "https://cloudflare-dns.com/dns-query"  # Cloudflare DoH
-          idle_timeout: 3600
         - tag: google_doh
-          addr: "https://dns.google/dns-query"  # Google DoH
-          idle_timeout: 3600
-        - tag: quad9_doh
-          addr: "https://dns.quad9.net/dns-query"  # Quad9 DoH
-          idle_timeout: 3600
-        - tag: unbound_dns
-          addr: "udp://127.0.0.1:5355"  # 本地 Unbound 监听的 DNS 服务
-          idle_timeout: 3600  # 连接空闲超时时间（秒）       
+          addr: "https://dns.google/dns-query"
+          socks5: "127.0.0.1:7891"
+          idle_timeout: 10
 
-  ## --- 国内 DNS 解析（使用 DoT）--- ##
+        - tag: cloudflare_doh
+          addr: "https://cloudflare-dns.com/dns-query"
+          socks5: "127.0.0.1:7891"
+          idle_timeout: 10
+
+        - tag: quad9_doh
+          addr: "https://dns.quad9.net/dns-query"
+          socks5: "127.0.0.1:7891"
+          idle_timeout: 10
+
+        - tag: unbound_dns
+          addr: "udp://127.0.0.1:5355"
+          idle_timeout: 10
+
+  # 国内 DNS（DoT）
   - tag: "domestic_forward"
     type: forward
     args:
       upstreams:
         - tag: ali_dot
-          addr: "tls://223.5.5.5"  # 阿里 DoT
-          idle_timeout: 3600
+          addr: "tls://223.5.5.5"
+          idle_timeout: 10
         - tag: tencent_dot
-          addr: "tls://119.29.29.29"  # 腾讯 DoT
-          idle_timeout: 3600
+          addr: "tls://119.29.29.29"
+          idle_timeout: 10
 
-  ## --- TTL 处理 --- ##
+  # TTL 控制
   - tag: "ttl_sequence"
     type: sequence
     args:
-      - exec: ttl 600-86400  # 最小 TTL 600 秒，最大 86400 秒（1 天）
+      - exec: ttl 600-86400
       - exec: accept
 
-  ## --- 国内 DNS 解析流程 --- ##
+  # 国内解析流程
   - tag: "domestic_sequence"
     type: sequence
     args:
       - exec: $domestic_forward
-      - exec: goto ttl_sequence  # 应用 TTL 规则
+      - exec: goto ttl_sequence
 
-  ## --- 远程 DNS 解析流程 --- ##
+  # 国外解析流程
   - tag: "remote_sequence"
     type: sequence
     args:
-      - exec: $remote_forward  # 使用远程 DNS 解析
-      - matches: "resp_ip $direct_ip"  # 如果解析结果是国内 IP，改用国内解析
+      - exec: $remote_forward
+      - matches: "resp_ip $direct_ip"
         exec: $domestic_forward
-      - exec: goto ttl_sequence  # 应用 TTL 规则
+      - exec: goto ttl_sequence
 
-  ## --- 智能 Fallback 机制 --- ##
+  # 智能 fallback
   - tag: "fallback"
     type: fallback
     args:
-      primary: remote_sequence  # 默认使用远程 DNS
-      secondary: domestic_sequence  # 备用国内 DNS
-      threshold: 300  # 300ms 内超时则切换
-      always_standby: true  # 并行查询，提升速度
+      primary: remote_sequence
+      secondary: domestic_sequence
+      threshold: 300
+      always_standby: true
 
-  ## --- 主要解析流程 --- ##
+  # 主解析流程
   - tag: "main_sequence"
     type: sequence
     args:
-      - exec: prefer_ipv4  # 优先解析 IPv4
-      - exec: $cache  # 先查询缓存，减少 DNS 查询次数
+      - exec: prefer_ipv4
+      - exec: $cache
       - matches: has_resp
-        exec: accept  # 命中缓存则直接返回
-      - exec: $reverse_lookup  # 进行反向解析
+        exec: accept
+      - exec: $reverse_lookup
       - matches: has_resp
-        exec: accept  # 反向解析命中则直接返回
+        exec: accept
       - matches: "qname $remote_domain_set"
-        exec: goto remote_sequence  # 如果域名在远程域名列表中，走远程解析
+        exec: goto remote_sequence
       - matches: "qname $direct_domain_set"
-        exec: goto domestic_sequence  # 如果域名在直连域名列表中，走国内解析
-      - exec: $fallback  # 其他情况，使用 fallback 机制解析
+        exec: goto domestic_sequence
+      - exec: $fallback
 
-  ## --- 启动 UDP 服务器，监听端口 5335 --- ##
+  # 启动 UDP 服务（监听 5335）
   - tag: udp_server
     type: udp_server
     args:
       entry: main_sequence
-      listen: :5335  # 监听 5335 端口
+      listen: :5335
