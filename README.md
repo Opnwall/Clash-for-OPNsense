@@ -1,5 +1,5 @@
 ## OPNsense 代理全家桶
-代理工具一键安装脚本，用于在OPNsense上运行Clash、MosDNS和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.4上测试通过。
+代理工具一键安装，用于在OPNsense上运行Clash、MosDNS和Mosdns。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.4上测试通过。
 
 ![](images/proxy.png)
 
