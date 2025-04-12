@@ -49,7 +49,7 @@ plugins:
     args:
       upstreams:
         - tag: local_dns
-          addr: "udp://202.101.202.101"  # 可换成你实际运营商 DNS
+          addr: "udp://114.114.114.114"  # 可换成你实际运营商 DNS
 
   # 🚀 远程 DNS（经 Clash 代理转发）
   - tag: "remote_forward"
