@@ -1,4 +1,6 @@
 #!/bin/bash
+
+##############  代理安装脚本  #################
 echo -e ''
 echo -e "\033[32m========OPNsense 代理全家桶一键安装脚本=========\033[0m"
 echo -e ''
@@ -33,21 +35,16 @@ log() {
 
 # 创建目录
 log "$YELLOW" "创建目录..."
-sleep 1
 mkdir -p "$CONF_DIR/clash" "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
 
 # 复制文件
 log "$YELLOW" "复制文件..."
-sleep 1
 log "$YELLOW" "生成菜单..."
 # 删除菜单缓存
 rm -f /tmp/opnsense_menu_cache.xml
 rm -f /tmp/opnsense_acl_cache.json
-sleep 1
 log "$YELLOW" "生成服务..."
-sleep 1
 log "$YELLOW" "添加权限..."
-sleep 1
 chmod +x bin/*
 chmod +x rc.d/*
 cp -f bin/* "$BIN_DIR/" || log "$RED" "bin 文件复制失败！"
@@ -71,19 +68,16 @@ cat>/usr/bin/sub<<EOF
 bash /usr/local/etc/clash/sub/sub.sh
 EOF
 chmod +x /usr/bin/sub
-sleep 1
 
 # 安装bash
 log "$GREEN" "安装bash..."
 if ! pkg info -q bash > /dev/null 2>&1; then
   pkg install -y bash > /dev/null 2>&1
 fi
-sleep 1
 
 # 添加服务启动项
 log "$YELLOW" "配置系统服务..."
 cp -f rc.conf/* "$RC_CONF/" || log "$RED" "rc.conf 文件复制失败！"
-sleep 1
 
 # 启动Tun接口
 log "$YELLOW" "启动tun2socks..."
@@ -198,7 +192,7 @@ else
     print "      <descr>&#x56FD;&#x5916;IP&#x8D70;&#x900F;&#x660E;&#x7F51;&#x5173;</descr>"
     print "      <gateway>TUN_GW</gateway>"
     print "      <direction>in</direction>"
-    print "      <log>1</log>"
+    print "      <floating>yes</floating>"
     print "      <quick>1</quick>"
     print "      <source>"
     print "        <network>lan</network>"
