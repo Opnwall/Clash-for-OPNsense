@@ -43,6 +43,7 @@ log "$YELLOW" "生成菜单..."
 # 删除菜单缓存
 rm -f /tmp/opnsense_menu_cache.xml
 rm -f /tmp/opnsense_acl_cache.json
+sleep 1
 log "$YELLOW" "生成服务..."
 log "$YELLOW" "添加权限..."
 chmod +x bin/*
@@ -78,7 +79,6 @@ fi
 # 添加服务启动项
 log "$YELLOW" "配置系统服务..."
 cp -f rc.conf/* "$RC_CONF/" || log "$RED" "rc.conf 文件复制失败！"
-
 # 启动Tun接口
 log "$YELLOW" "启动tun2socks..."
 service tun2socks start > /dev/null 2>&1
@@ -123,7 +123,7 @@ fi
 log "$YELLOW" "添加CN_IP别名..."
 if grep -q "<name>CN_IP</name>" "$CONFIG_FILE"; then
   echo "存在相同别名，忽略"
-  echo ""	
+  echo "" 
 else
   awk '
   BEGIN { inserted = 0 }
@@ -171,7 +171,7 @@ else
   { print }
   ' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
     echo "别名添加完成"
-    echo ""	
+    echo "" 
 fi
 
 # 添加防火墙规则（非中国IP走透明网关TUN_GW）
@@ -210,43 +210,100 @@ else
   echo ""
 fi
 
-# 更改Unbound DNS 端口为 5355
-log "$YELLOW" "更改Unbound端口..."
+# 更改Unbound端口为 5355
 sleep 1
-awk '
-  BEGIN { inside = 0 }
-  /<unboundplus .*>/ { inside = 1 }
-  /<\/unboundplus>/ { inside = 0 }
-  inside && /<port>/ {
-    gsub(/<port>.*<\/port>/, "<port>5355</port>")
-  }
-  { print }
-' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
+log "$YELLOW" "更改Unbound端口..."
 
-if [ $? -ne 0 ]; then
-  echo "更改Unbound端口失败，请检查格式"
-  echo ""
-  exit 1
+PORT_OK=$(awk '
+BEGIN {
+  in_unbound = 0
+  in_general = 0
+}
+/<unboundplus[^>]*>/ { in_unbound = 1 }
+/<\/unboundplus>/ { in_unbound = 0 }
+{
+  if (in_unbound && /<general>/) {
+    in_general = 1
+  }
+  if (in_unbound && /<\/general>/) {
+    in_general = 0
+  }
+  if (in_unbound && in_general && /<port>5355<\/port>/) {
+    print "yes"
+    exit
+  }
+}
+' "$CONFIG_FILE")
+
+if [ "$PORT_OK" = "yes" ]; then
+  echo "端口已经为5355，跳过"
 else
-  echo "端口更改为5355"
-  echo ""
+  awk '
+  BEGIN {
+    in_unbound = 0
+    in_general = 0
+    port_handled = 0
+  }
+  {
+    if ($0 ~ /<unboundplus[^>]*>/) {
+      in_unbound = 1
+    }
+    if ($0 ~ /<\/unboundplus>/) {
+      in_unbound = 0
+    }
+
+    if (in_unbound && $0 ~ /<general>/) {
+      in_general = 1
+      print
+      next
+    }
+
+    if (in_unbound && in_general && $0 ~ /<\/general>/) {
+      if (port_handled == 0) {
+        print "        <port>5355</port>"
+        port_handled = 1
+      }
+      in_general = 0
+      print
+      next
+    }
+
+    if (in_unbound && in_general && $0 ~ /<port>.*<\/port>/ && port_handled == 0) {
+      sub(/<port>.*<\/port>/, "<port>5355</port>")
+      port_handled = 1
+      print
+      next
+    }
+
+    print
+  }
+  ' "$CONFIG_FILE" > "$TMP_FILE"
+
+  if [ -s "$TMP_FILE" ]; then
+    mv "$TMP_FILE" "$CONFIG_FILE"
+    echo "端口已设置为5355"
+  else
+    log "$RED" "修改失败，请检查配置文件"
+  fi
 fi
+echo ""
 
 # 重启服务Unbound
-# log "$YELLOW" "重启Unbound服务..."
-# /usr/local/etc/rc.d/unbound restart > /dev/null 2>&1
+log "$YELLOW" "重启Unbound服务..."
+/usr/local/etc/rc.d/unbound restart > /dev/null 2>&1
+echo ""
 
 # 重新载入防火墙规则
-# log "$YELLOW" "重新载入防火墙规则..."
-# configctl filter reload > /dev/null 2>&1
+log "$YELLOW" "重新载入防火墙规则..."
+configctl filter reload > /dev/null 2>&1
+echo ""
 
 # 重启所有服务
-log "$YELLOW" "应用所有更改，请稍等..."
-/usr/local/etc/rc.reload_all >/dev/null 2>&1
-echo "所有服务已重新加载！"
-echo ""
-sleep 2
+# log "$YELLOW" "应用所有更改，请稍等..."
+# /usr/local/etc/rc.reload_all >/dev/null 2>&1
+# echo "所有服务已重新加载！"
+# echo ""
 
 # 完成提示
-log "$GREEN" "代理全家桶安装完毕，请刷新浏览器，导航到VPN > Proxy Suite 进行配置。"
+log "$GREEN" "安装完毕，请刷新浏览器，导航到VPN > Proxy Suite 进行配置。"
 echo ""
