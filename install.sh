@@ -121,7 +121,7 @@ fi
 
 # 添加CN_IP别名
 log "$YELLOW" "添加CN_IP别名..."
-if grep -q "<name>CN_IP</name>" "$CONFIG_FILE"; then
+if grep -q "<content>https://ispip.clang.cn/all_cn.txt</content>" "$CONFIG_FILE"; then
   echo "存在相同别名，忽略"
   echo "" 
 else
