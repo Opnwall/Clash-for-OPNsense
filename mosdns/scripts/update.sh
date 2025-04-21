@@ -16,7 +16,7 @@ RESET="\033[0m"
 log() {
     local color="$1"
     local message="$2"
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${color}${message}${RESET}"
+    echo -e "${color}${message}${RESET}"
 }
 
 exit_with_error() {
@@ -29,11 +29,10 @@ PROXY="socks5://127.0.0.1:7891"
 WORKDIR="/tmp/opnsense_update"
 UI_DIR="/usr/local/etc/clash/ui"
 BIN_DIR="/usr/local/bin"
-TMP="/tmp/mosdns_up"
 IPS="/usr/local/etc/mosdns/ips"
 DOMAINS="/usr/local/etc/mosdns/domains"
 
-mkdir -p "$WORKDIR" "$TMP" "$UI_DIR"
+mkdir -p "$WORKDIR" "$UI_DIR"
 cd "$WORKDIR" || exit_with_error "无法进入工作目录 $WORKDIR"
 
 # 获取最新版本
@@ -49,25 +48,26 @@ download() {
     curl -L --proxy "$PROXY" -o "$output" "$url" || exit_with_error "下载失败：$url"
 }
 
+echo -e ''
+log "$GREEN" "使用SOCKS5代理进行更新，代理地址: $PROXY"
+echo -e ''
+
 # ========== 1. 更新 GEO 数据 ==========
 log "$YELLOW" "正在更新GEO数据..."
 
-fetch -o "$TMP/all_cn.txt" "https://ispip.clang.cn/all_cn.txt" || exit_with_error "下载 all_cn.txt 失败"
-fetch -o "$TMP/direct-list.txt" "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/direct-list.txt" || exit_with_error "下载 direct-list.txt 失败"
-fetch -o "$TMP/proxy-list.txt" "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/proxy-list.txt" || exit_with_error "下载 proxy-list.txt 失败"
-fetch -o "$TMP/gfw.txt" "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt" || exit_with_error "下载 gfw.txt 失败"
+download "https://ispip.clang.cn/all_cn.txt" "$WORKDIR/all_cn.txt"
+download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/direct-list.txt" "$WORKDIR/direct-list.txt"
+download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/proxy-list.txt" "$WORKDIR/proxy-list.txt"
+download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt" "$WORKDIR/gfw.txt"
 
-cp -f "$TMP/all_cn.txt" "$IPS/" || log "$RED" "复制 all_cn.txt 失败！"
-cp -f "$TMP/direct-list.txt" "$DOMAINS/"
-cp -f "$TMP/proxy-list.txt" "$DOMAINS/"
-cp -f "$TMP/gfw.txt" "$DOMAINS/"
-rm -rf "$TMP"
+cp -f "$WORKDIR/all_cn.txt" "$IPS/" || log "$RED" "复制 all_cn.txt 失败！"
+cp -f "$WORKDIR/direct-list.txt" "$DOMAINS/"
+cp -f "$WORKDIR/proxy-list.txt" "$DOMAINS/"
+cp -f "$WORKDIR/gfw.txt" "$DOMAINS/"
 
 log "$GREEN" "GEO数据更新完成"
+echo -e ''
 
-echo -e ''
-log "$GREEN" "以下内容使用SOCKS5代理进行更新，代理地址: $PROXY"
-echo -e ''
 
 # ========== 2. 更新 metacubexd ==========
 log "$YELLOW" "正在更新MetaCubeXD..."
@@ -78,12 +78,10 @@ log "$GREEN" "最新版本：v$version"
 
 download "https://github.com/MetaCubeX/metacubexd/releases/download/v${version}/compressed-dist.tgz" "metacubexd.tgz"
 
-# 解压到临时目录，避免在 UI_DIR 中直接解压
 METACUBEXD_TMP="$WORKDIR/metacubexd_tmp"
 mkdir -p "$METACUBEXD_TMP"
 tar -xzf metacubexd.tgz -C "$METACUBEXD_TMP"
 
-# 清空原 UI_DIR，复制新文件
 rm -rf "${UI_DIR:?}/"*
 cp -rf "$METACUBEXD_TMP"/* "$UI_DIR/"
 
@@ -134,7 +132,6 @@ echo -e ''
 
 # 清理
 rm -rf "$WORKDIR"
-
 
 log "$YELLOW" "重启代理服务！"
 service tun2socks restart || log "$RED" "tun2socks 重启失败"
