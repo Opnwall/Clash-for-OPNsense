@@ -6,18 +6,17 @@
 ## 项目源代码
 该项目集成了以下工具：
 
-[clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
+[Mosdns](https://github.com/IrineSistiana/mosdns) 
 
 [sing-box](https://github.com/SagerNet/sing-box) 
 
-[hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
-
-[Mosdns](https://github.com/IrineSistiana/mosdns) 
-
-[YACD](https://github.com/haishanh/yacd) 
+[MetaCubeXD](https://github.com/MetaCubeX/metacubexd) 
 
 [Subconverter](https://github.com/tindy2013/subconverter)
 
+[clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
+
+[hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 
 ## 注意事项
 1. 当前仅支持x86_64 平台。
