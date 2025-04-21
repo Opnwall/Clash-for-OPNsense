@@ -6,7 +6,9 @@
 ## 项目源代码
 该项目集成了以下工具：
 
-[Clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
+[clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
+
+[sing-box](https://github.com/SagerNet/sing-box) 
 
 [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 
