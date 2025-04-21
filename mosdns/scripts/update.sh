@@ -68,7 +68,6 @@ cp -f "$WORKDIR/gfw.txt" "$DOMAINS/"
 log "$GREEN" "GEO数据更新完成"
 echo -e ''
 
-
 # ========== 2. 更新 metacubexd ==========
 log "$YELLOW" "正在更新MetaCubeXD..."
 
@@ -139,5 +138,5 @@ service mosdns restart || log "$RED" "mosdns 重启失败"
 service clash restart || log "$RED" "clash 重启失败"
 echo -e ''
 
-log "$GREEN" "所有组件已成功更新完毕！"
+log "$GREEN" "所有组件已更新完毕！"
 echo -e ''
