@@ -123,7 +123,7 @@ fi
 log "$YELLOW" "添加CN_IP别名..."
 if grep -q "<content>https://ispip.clang.cn/all_cn.txt</content>" "$CONFIG_FILE"; then
   echo "存在相同别名，忽略"
-  echo "" 
+  echo ""	
 else
   awk '
   BEGIN { inserted = 0 }
@@ -171,7 +171,7 @@ else
   { print }
   ' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
     echo "别名添加完成"
-    echo "" 
+    echo ""	
 fi
 
 # 添加防火墙规则（非中国IP走透明网关TUN_GW）
@@ -296,6 +296,11 @@ echo ""
 # 重新载入防火墙规则
 log "$YELLOW" "重新载入防火墙规则..."
 configctl filter reload > /dev/null 2>&1
+echo ""
+
+# 重新载入configd
+log "$YELLOW" "重新载入configd..."
+service configd restart > /dev/null 2>&1
 echo ""
 
 # 重启所有服务
