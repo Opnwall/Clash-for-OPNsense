@@ -56,7 +56,7 @@ get_current_version_tun2socks() {
 }
 
 # ========== GEO 数据 ==========
-log "$YELLOW" "正在更新 GEO 数据..."
+log "$YELLOW" "正在更新 GeoIP 数据..."
 download "https://ispip.clang.cn/all_cn.txt" "$WORKDIR/all_cn.txt"
 download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/direct-list.txt" "$WORKDIR/direct-list.txt"
 download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/proxy-list.txt" "$WORKDIR/proxy-list.txt"
@@ -67,7 +67,7 @@ cp -f "$WORKDIR/direct-list.txt" "$DOMAINS/"
 cp -f "$WORKDIR/proxy-list.txt" "$DOMAINS/"
 cp -f "$WORKDIR/gfw.txt" "$DOMAINS/"
 
-log "$GREEN" "GEO 已更新"
+log "$GREEN" "GeoIP 已更新"
 echo ""
 
 # ========== MetaCubeXD ==========
