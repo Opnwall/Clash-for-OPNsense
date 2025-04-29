@@ -33,8 +33,8 @@ sh install.sh
 ```
 
 如下图所示：
-
-[]！(https://github.com/Opnwall/Clash-for-OPNsense/blob/main/images/install.png)
+[]!
+(https://github.com/Opnwall/Clash-for-OPNsense/blob/main/images/install.png)
 
 ## 使用方法
 请参考以下文章：
