@@ -34,7 +34,7 @@ sh install.sh
 
 如下图所示：
 
-![](./images/install.png)
+![](https://pfchina.org/wp-content/uploads/2025/01/021.png)
 
 ## 使用方法
 请参考以下文章：
