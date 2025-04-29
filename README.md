@@ -1,7 +1,7 @@
 ## Clash for OPNsense
 Clash代理安装工具，用于在OPNsense上运行Clash、Tun2socks、Mosdns，以实现代理访问功能。支持Clash订阅转换、透明代理和DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.5上测试通过。
 
-![](./images/proxy.png)
+![ ](./images/proxy.png)
 
 ## 项目源代码
 该项目集成了以下工具：
@@ -34,7 +34,7 @@ sh install.sh
 
 如下图所示：
 
-![](./images/install.png)
+![ ](./images/install.png)
 
 ## 使用方法
 请参考以下文章：
