@@ -38,7 +38,7 @@ sh install.sh
 
 ## 使用方法
 请参考以下文章：
-[OPNsense代理全家桶安装配置教程](https://pfchina.org/?p=14148)
+[Clash for OPNsense安装配置教程](https://pfchina.org/?p=14148)
 
 ## 常见问题
 如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)工具搭建自己的订阅转换平台。
