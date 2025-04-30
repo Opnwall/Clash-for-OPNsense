@@ -36,9 +36,3 @@ sh install.sh
 
 ## 常见问题
 如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)工具搭建自己的订阅转换平台。
-
-## 参考资料
-- [pfSense、OPNsense配置MosDNS教程](https://pfchina.org/?p=14088)  
-- [pfSense、OPNsense配置Clash代理教程](https://pfchina.org/?p=10526)   
-- [pfSense、OPNsense设置http透明代理教程](https://pfchina.org/?p=13572)  
-- [pfSense、OPNsense配置hev-socks5-tunnel透明代理教程](https://pfchina.org/?p=14551)
