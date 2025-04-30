@@ -32,6 +32,7 @@ sh install.sh
 
 ## 使用方法
 请参考以下文章：
+
 [pfSense、OPNsense安装配置Clash透明代理教程](https://pfchina.org/?p=14148)
 
 ## 常见问题
