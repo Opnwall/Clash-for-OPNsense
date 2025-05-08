@@ -33,6 +33,13 @@ sh install.sh
 ```
 ![](images/install.png)
 
+## 卸载方法
+运行以下命令卸载安装：
+
+```bash
+sh uninstall.sh
+```
+
 ## 使用方法
 请参考以下文章：
 
