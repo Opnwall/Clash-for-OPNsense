@@ -8,8 +8,6 @@ Clash安装工具，用于运行Clash、Tun2socks、Mosdns，在OPNsense上实�
 
 [Mosdns](https://github.com/IrineSistiana/mosdns) 
 
-[sing-box](https://github.com/SagerNet/sing-box) 
-
 [MetaCubeXD](https://github.com/MetaCubeX/metacubexd) 
 
 [Subconverter](https://github.com/tindy2013/subconverter)
