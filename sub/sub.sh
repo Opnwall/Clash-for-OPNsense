@@ -1,115 +1,84 @@
 #!/bin/sh
+# 在线订阅转换脚本
 
-set -e  # 遇到错误即退出
-
-#################### 初始化任务 ####################
-
-# 获取脚本工作目录路径
+#################### 初始化 ####################
 Server_Dir=$(cd "$(dirname "$0")" && pwd)
+[ -f "$Server_Dir/env" ] && . "$Server_Dir/env"
 
-# 加载环境变量
-if [ -f "$Server_Dir/env" ]; then
-    . "$Server_Dir/env"
-fi
-
-# 赋予必要权限
-chmod +x "$Server_Dir/sub/subconverter"
-
-#################### 变量设置 ####################
+API_BASE="https://subconverters.com/sub"
 
 Conf_Dir="$Server_Dir/conf"
 Temp_Dir="$Server_Dir/temp"
-Log_Dir="$Server_Dir/logs"
-Clash_Dir="/usr/local/etc/clash/"
+Clash_Dir="/usr/local/etc/clash"
+Dashboard_Dir="${Server_Dir}/ui"
+mkdir -p "$Conf_Dir" "$Temp_Dir"
 
-# 获取Clash订阅地址
-if [ -z "$CLASH_URL" ]; then
-    echo "错误: CLASH订阅地址为空！"
+TMP_RAW=$(mktemp "$Temp_Dir/clash_config.yaml")
+TMP_PROXIES=$(mktemp "$Temp_Dir/proxies.txt")
+TMP_FINAL=$(mktemp "$Temp_Dir/config.yaml")
+TEMPLATE_FILE="$Temp_Dir/templete_config.yaml"
+
+# Clash订阅地址校验
+[ -z "$CLASH_URL" ] && {
+    echo "错误：未设置 CLASH_URL 环境变量"
     exit 1
-fi
-URL="$CLASH_URL"
+}
 
-# 生成Secret如果未定义）
+# Secret
 Secret=${CLASH_SECRET:-$(openssl rand -hex 32)}
 
-#################### 任务执行 ####################
+#################### 下载配置 ####################
+ENCODED_URL=$(printf "%s" "$CLASH_URL" | jq -s -R -r @uri)
+API_URL="${API_BASE}?target=clash&url=${ENCODED_URL}&udp=true&clash.dns=true&list=false"
+echo ""
+echo "下载配置..."
+echo ""
 
-echo "检测订阅地址..."
-if curl -o /dev/null -L -k -sS --retry 5 -m 10 --connect-timeout 10 -w "%{http_code}" "$URL" | grep -E '^[23][0-9]{2}$' >/dev/null; then
-    echo "Clash订阅地址可以访问！"
+if curl -L -k -sS --retry 3 -m 15 -o "$TMP_RAW" "$API_URL"; then
+    echo "下载成功：$TMP_RAW"
 else
-    echo "Clash订阅地址不可访问！"
+    echo "下载失败！"
     exit 1
 fi
 echo ""
 
-# 下载配置文件
-echo "正在下载Clash配置文件..."
-if ! curl -L -k -sS --retry 5 -m 10 -o "$Temp_Dir/clash.yaml" "$URL"; then
-    echo "curl 下载失败，尝试 wget..."
-    if ! wget -q --no-check-certificate -O "$Temp_Dir/clash.yaml" "$URL"; then
-        echo "配置文件下载失败，退出！"
-        exit 1
-    fi
-fi
-echo "文件下载成功！"
+#################### 合成配置 ####################
+[ ! -f "$TEMPLATE_FILE" ] && {
+    echo "缺少模板文件：$TEMPLATE_FILE"
+    exit 1
+}
+
+# 提取代理部分
+sed -n '/^proxies:/,$p' "$TMP_RAW" > "$TMP_PROXIES"
+
+# 合成配置
+echo "合成配置..."
+sleep 1
+cat "$TEMPLATE_FILE" > "$TMP_FINAL"
+cat "$TMP_PROXIES" >> "$TMP_FINAL"
+cp "$TMP_FINAL" "$Conf_Dir/config.yaml"
+
+# 替换 dashboard 路径与 secret
+sed -i '' "s@^# external-ui:.*@external-ui: ${Dashboard_Dir}@" "$Conf_Dir/config.yaml"
+sed -i '' -E "s@^secret:.*@secret: ${Secret}@" "$Conf_Dir/config.yaml"
+echo "合成完成!"
 echo ""
 
-# 复制配置文件
-cp -a "$Temp_Dir/clash.yaml" "$Temp_Dir/clash_config.yaml"
-
-# 判断订阅是否为Clash标准格式
-raw_content=$(cat "$Temp_Dir/clash_config.yaml")
-echo "$raw_content" > /tmp/raw_content.txt
-if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' /tmp/raw_content.txt; then
-    echo "订阅内容符合Clash标准格式！"
-else
-    echo "检测到非标准Clash配置，尝试解码..."
-    if echo "$raw_content" | base64 -d 2>/dev/null > /tmp/decoded_content.txt; then
-        decoded_content=$(cat /tmp/decoded_content.txt)
-        if awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' /tmp/decoded_content.txt; then
-            echo "解码后的内容符合Clash标准格式！"
-            echo "$decoded_content" > "$Temp_Dir/clash_config.yaml"
-        else
-            echo "解码失败，尝试转换..."
-            "$Server_Dir/sub/subconverter" -g &>> "$Log_Dir/sub.log"
-            if ! awk '/^proxies:/{p=1} /^proxy-groups:/{g=1} /^rules:/{r=1} p&&g&&r{exit} END{if(p&&g&&r) exit 0; else exit 1}' "$Temp_Dir/clash_config.yaml"; then
-                echo "转换失败！无法生成Clash配置文件！"
-                exit 1
-            fi
-        fi
-    else
-        echo "订阅内容不符合Clash标准，且无法解码！"
-        exit 1
-    fi
-fi
-
-# 生成最终Clash配置文件
-sed -n '/^proxies:/,$p' "$Temp_Dir/clash_config.yaml" > "$Temp_Dir/proxy.txt"
-sed -i '' '/socks-port: 7891/d' "$Temp_Dir/proxy.txt"
-cat "$Temp_Dir/templete_config.yaml" > "$Temp_Dir/config.yaml"
-cat "$Temp_Dir/proxy.txt" >> "$Temp_Dir/config.yaml"
-cp "$Temp_Dir/config.yaml" "$Conf_Dir/"
-
-# 配置Clash面板
-Dashboard_Dir="${Server_Dir}/ui"
-sed -i "" -e "s@^# external-ui:.*@external-ui: ${Dashboard_Dir}@g" "$Conf_Dir/config.yaml"
-sed -E -i "" -e "/^secret: /s@(secret: ).*@\1${Secret}@g" "$Conf_Dir/config.yaml"
-
-echo "订阅完成！"
-echo ""
-
-# 替换配置
-cp "$Conf_Dir/config.yaml" "$Clash_Dir/"
-echo "替换运行配置文件..."
-
-
-# 重启Clash服务
-echo "重启Clash服务..."
+#################### 应用配置并重启 ####################
+echo "替换配置..."
+sleep 1
+cp "$Conf_Dir/config.yaml" "$Clash_Dir/config.yaml"
+echo "重启服务..."
 service clash restart
-echo "Clash服务重启完成！"
+sleep 1
+echo "重启完成！"
+echo ""
+#################### 输出仪表盘信息 ####################
+sleep 1
+LAN_IP=$(ifconfig | awk '/inet / && $2 != "127.0.0.1" {print $2; exit}')
+echo "仪表盘访问地址: http://${LAN_IP}:9090/ui"
+echo "仪表盘访问密钥: ${Secret}"
 echo ""
 
-echo "Clash仪表盘访问地址: http://<LAN IP>:9090/ui"
-echo "访问密钥: ${Secret}"
-echo ""
+#################### 清理临时文件 ####################
+rm -f "$TMP_RAW" "$TMP_PROXIES" "$TMP_FINAL"
