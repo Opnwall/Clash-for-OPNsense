@@ -35,7 +35,7 @@ log() {
 
 # 创建目录
 log "$YELLOW" "创建目录..."
-mkdir -p "$CONF_DIR/clash" "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
+mkdir -p "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
 
 # 复制文件
 log "$YELLOW" "复制文件..."
