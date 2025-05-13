@@ -1,8 +1,8 @@
 #!/bin/sh
 
-echo -e ''
+echo ""
 echo -e "\033[32m==================代理程序和GeoIP数据更新脚本=============\033[0m"
-echo -e ''
+echo ""
 
 set -e
 
@@ -42,7 +42,6 @@ download() {
     curl -L --proxy "$PROXY" -o "$output" "$url" || exit_with_error "下载失败：$url"
 }
 
-# 当前版本提取
 get_current_version_mosdns() {
     [ -x "$BIN_DIR/mosdns" ] && "$BIN_DIR/mosdns" -version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo ""
 }
@@ -55,7 +54,6 @@ get_current_version_tun2socks() {
     [ -x "$BIN_DIR/tun2socks" ] && "$BIN_DIR/tun2socks" -v 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo ""
 }
 
-# ========== GEO 数据 ==========
 log "$YELLOW" "正在更新 GeoIP 数据..."
 download "https://ispip.clang.cn/all_cn.txt" "$WORKDIR/all_cn.txt"
 download "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/direct-list.txt" "$WORKDIR/direct-list.txt"
@@ -70,7 +68,6 @@ cp -f "$WORKDIR/gfw.txt" "$DOMAINS/"
 log "$GREEN" "GeoIP 已更新"
 echo ""
 
-# ========== MetaCubeXD ==========
 log "$YELLOW" "正在更新 MetaCubeXD..."
 version=$(get_latest_version "https://api.github.com/repos/MetaCubeX/metacubexd/releases/latest")
 [ -z "$version" ] && exit_with_error "无法获取 MetaCubeXD 版本"
@@ -85,7 +82,6 @@ cp -rf "$METACUBEXD_TMP"/* "$UI_DIR/"
 log "$GREEN" "MetaCubeXD 已更新"
 echo ""
 
-# ========== MOSDNS ==========
 version=$(get_latest_version "https://api.github.com/repos/IrineSistiana/mosdns/releases/latest")
 current=$(get_current_version_mosdns)
 if [ "$version" = "$current" ]; then
@@ -100,7 +96,6 @@ else
 fi
 echo ""
 
-# ========== hev-socks5-tunnel ==========
 version=$(get_latest_version "https://api.github.com/repos/heiher/hev-socks5-tunnel/releases/latest")
 current=$(get_current_version_tun2socks)
 if [ "$version" = "$current" ]; then
@@ -108,13 +103,12 @@ if [ "$version" = "$current" ]; then
 else
     log "$YELLOW" "正在更新 hev-socks5-tunnel（当前版本：$current -> v$version）"
     download "https://github.com/heiher/hev-socks5-tunnel/releases/download/${version}/hev-socks5-tunnel-freebsd-x86_64" "tun2socks"
-    chmod +x tun2socks
-    mv -f tun2socks "$BIN_DIR/tun2socks"
+    chmod +x "tun2socks"
+    mv -f "tun2socks" "$BIN_DIR/tun2socks"
     log "$GREEN" "hev-socks5-tunnel 已更新"
 fi
 echo ""
 
-# ========== Mihomo ==========
 version=$(get_latest_version "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest")
 current=$(get_current_version_mihomo)
 if [ "$version" = "$current" ]; then
@@ -130,12 +124,11 @@ else
 fi
 echo ""
 
-# 清理
 rm -rf "$WORKDIR"
 
 log "$YELLOW" "重启代理服务..."
-service tun2socks restart || log "$RED" "tun2socks 重启失败"
-service mosdns restart || log "$RED" "mosdns 重启失败"
-service clash restart || log "$RED" "clash 重启失败"
+[ -x "$BIN_DIR/tun2socks" ] && service tun2socks restart || log "$RED" "tun2socks 重启失败"
+[ -x "$BIN_DIR/mosdns" ] && service mosdns restart || log "$RED" "mosdns 重启失败"
+[ -x "$BIN_DIR/clash" ] && service clash restart || log "$RED" "clash 重启失败"
 log "$GREEN" "所有组件已更新完成"
 echo ""
