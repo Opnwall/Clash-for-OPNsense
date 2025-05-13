@@ -159,7 +159,7 @@ $log_content = htmlspecialchars(implode("", $log_tail));
                             <tr>
                                 <td>
                                     <form class="form-group">
-                                        <textarea readonly style="max-width:none" name="log_content" rows="23" class="form-control"><?= $log_content; ?></textarea>
+                                        <textarea readonly style="max-width:none" name="log_content" rows="20" class="form-control"><?= $log_content; ?></textarea>
                                     </form>
                                 </td>
                             </tr>
