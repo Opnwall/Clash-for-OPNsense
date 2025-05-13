@@ -69,7 +69,7 @@ echo "替换配置..."
 sleep 1
 cp "$Conf_Dir/config.yaml" "$Clash_Dir/config.yaml"
 echo "重启服务..."
-service clash restart
+service clash restart >/dev/null 2>&1
 sleep 1
 echo "重启完成！"
 echo ""
