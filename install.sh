@@ -288,6 +288,87 @@ else
 fi
 echo ""
 
+# 添加订阅和更新任务
+sleep 1
+log "$YELLOW" "添加订阅和GeoIP（程序）更新任务..."
+insert_job_if_missing() {
+  CMD="$1"
+  JOB_XML="$2"
+
+  if grep -q "<command>$CMD</command>" "$CONFIG_FILE"; then
+    echo "任务已存在: $CMD，跳过插入。"
+    return
+  fi
+
+  echo "插入任务: $CMD"
+  echo "$JOB_XML" > /tmp/job_insert.xml
+
+  if grep -q "<jobs/>" "$CONFIG_FILE"; then
+    # 如果是空的 <jobs/>，替换为 <jobs>...内容...</jobs>
+    awk -v jobfile="/tmp/job_insert.xml" '
+      /<jobs\/>/ {
+        print "<jobs>"
+        while ((getline line < jobfile) > 0) print line
+        print "</jobs>"
+        next
+      }
+      { print }
+    ' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
+  elif grep -q "<jobs>" "$CONFIG_FILE"; then
+    # 否则插入到 </jobs> 前
+    awk -v jobfile="/tmp/job_insert.xml" '
+      /<\/jobs>/ {
+        while ((getline line < jobfile) > 0) print line
+      }
+      { print }
+    ' "$CONFIG_FILE" > "$TMP_FILE" && mv "$TMP_FILE" "$CONFIG_FILE"
+  else
+    echo "错误：未找到 <jobs> 或 <jobs/> 标签，无法插入任务。" >&2
+  fi
+
+  rm -f /tmp/job_insert.xml
+}
+
+# Job 1 内容
+JOB1='        <job uuid="5f284598-ed63-4aa6-845a-f53882583dd7">
+          <origin>cron</origin>
+          <enabled>1</enabled>
+          <minutes>0</minutes>
+          <hours>2</hours>
+          <days>6</days>
+          <months>*</months>
+          <weekdays>*</weekdays>
+          <who>root</who>
+          <command>mosdns update</command>
+          <parameters/>
+          <description>&#x66F4;&#x65B0;&#x4EE3;&#x7406;&#x548C;GEO&#x6570;&#x636E;</description>
+        </job>'
+
+# Job 2 内容
+JOB2='        <job uuid="388fcf06-888e-4781-b8f9-95142ce3c71c">
+          <origin>cron</origin>
+          <enabled>1</enabled>
+          <minutes>0</minutes>
+          <hours>3</hours>
+          <days>6</days>
+          <months>*</months>
+          <weekdays>*</weekdays>
+          <who>root</who>
+          <command>clash sub-update</command>
+          <parameters/>
+          <description>Clash&#x8BA2;&#x9605;&#x66F4;&#x65B0;</description>
+        </job>'
+
+# 插入任务
+insert_job_if_missing "mosdns update" "$JOB1"
+insert_job_if_missing "clash sub-update" "$JOB2"
+echo ""
+
+# 重载 cron 服务
+log "$YELLOW" "重启cron服务..."
+/usr/local/sbin/configctl cron restart > /dev/null 2>&1
+echo ""
+
 # 重启服务Unbound
 log "$YELLOW" "重启Unbound服务..."
 /usr/local/etc/rc.d/unbound restart > /dev/null 2>&1
