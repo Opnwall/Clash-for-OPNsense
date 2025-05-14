@@ -74,5 +74,5 @@ service configd restart > /dev/null 2>&1
 echo ""
 
 # 完成提示
-log "$GREEN" "卸载完成，请手动删除TUN接口、别名和浮动防火墙分流规则，并将Unbound DNS端口更改为53。"
+log "$GREEN" "卸载完成，请手动删除TUN接口、别名和浮动防火墙分流规则，任务列表自动更新项，并将Unbound DNS端口更改为53。"
 echo ""
