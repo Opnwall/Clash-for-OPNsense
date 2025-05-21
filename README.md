@@ -1,5 +1,5 @@
 ## Clash for OPNsense
-Clash安装工具，用于运行Clash、Tun2socks、Mosdns，在OPNsense上实现透明代理。支持Clash订阅转换、DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.5上测试通过。
+Clash安装工具，用于运行Clash、Mosdns，在OPNsense上实现透明代理。支持Clash订阅转换、DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.7上测试通过。
 
 ![](images/proxy.png)
 
@@ -8,13 +8,10 @@ Clash安装工具，用于运行Clash、Tun2socks、Mosdns，在OPNsense上实�
 
 [Mosdns](https://github.com/IrineSistiana/mosdns) 
 
-[MetaCubeXD](https://github.com/MetaCubeX/metacubexd) 
-
 [Subconverter](https://github.com/tindy2013/subconverter)
 
-[clash (mihomo)](https://github.com/MetaCubeX/mihomo/releases) 
+[mihomo_tun)](https://github.com/Vincent-Loeng/mihomo) 
 
-[hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 
 ## 注意事项
 1. 当前仅支持x86_64 平台。
