@@ -7,8 +7,6 @@ Clash安装工具，运行Clash、Mosdns，在OPNsense上实现透明代理。�
 
 [Mosdns](https://github.com/IrineSistiana/mosdns) 
 
-[Subconverter](https://github.com/tindy2013/subconverter)
-
 [Mihomo_tun](https://github.com/Vincent-Loeng/mihomo) 
 
 
