@@ -3,14 +3,13 @@ Clash安装工具，用于运行Clash、Mosdns，在OPNsense上实现透明代�
 
 ![](images/proxy.png)
 
-## 项目源代码
-该项目集成了以下工具：
+## 集成程序
 
 [Mosdns](https://github.com/IrineSistiana/mosdns) 
 
 [Subconverter](https://github.com/tindy2013/subconverter)
 
-[mihomo_tun)](https://github.com/Vincent-Loeng/mihomo) 
+[Mihomo_tun](https://github.com/Vincent-Loeng/mihomo) 
 
 
 ## 注意事项
@@ -39,6 +38,3 @@ sh uninstall.sh
 请参考以下文章：
 
 [pfSense、OPNsense安装配置Clash透明代理教程](https://pfchina.org/?p=14148)
-
-## 常见问题
-如果订阅转换不起作用，可以使用[SublinkX](https://github.com/gooaclok819/sublinkX)工具搭建自己的订阅转换平台。
