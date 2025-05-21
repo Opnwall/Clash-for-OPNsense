@@ -1,5 +1,5 @@
 ## Clash for OPNsense
-Clash安装工具，用于运行Clash、Mosdns，在OPNsense上实现透明代理。支持Clash订阅转换、DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.7上测试通过。
+Clash安装工具，运行Clash、Mosdns，在OPNsense上实现透明代理。支持Clash订阅、DNS分流。带Web控制界面，可以进行配置修改、程序控制、日志查看。在OPNsense 25.1.7上测试通过。
 
 ![](images/proxy.png)
 
@@ -28,7 +28,7 @@ sh install.sh
 ![](images/install.png)
 
 ## 卸载方法
-运行以下命令卸载安装：
+运行以下命令卸载：
 
 ```bash
 sh uninstall.sh
