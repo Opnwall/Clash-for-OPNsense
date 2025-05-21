@@ -35,7 +35,7 @@ log() {
 
 # 创建目录
 log "$YELLOW" "创建目录..."
-mkdir -p "$CONF_DIR/clash/sub" "$CONF_DIR/clash/ui" "$CONF_DIR/tun2socks" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
+mkdir -p "$CONF_DIR/clash" "$CONF_DIR/mosdns" || log "$RED" "目录创建失败！"
 
 # 复制文件
 log "$YELLOW" "复制文件..."
@@ -43,24 +43,19 @@ log "$YELLOW" "生成菜单..."
 # 删除菜单缓存
 rm -f /tmp/opnsense_menu_cache.xml
 rm -f /tmp/opnsense_acl_cache.json
-sleep 1
 log "$YELLOW" "生成服务..."
 log "$YELLOW" "添加权限..."
 chmod +x bin/*
 chmod +x rc.d/*
 cp -f bin/* "$BIN_DIR/" || log "$RED" "bin 文件复制失败！"
 cp -f www/* "$WWW_DIR/" || log "$RED" "www 文件复制失败！"
-cp -R -f sub/* "$CONF_DIR/clash/sub/" || log "$RED" "sub 文件复制失败！"
-cp -R -f ui/* "$CONF_DIR/clash/ui/" || log "$RED" "ui 文件复制失败！"
-cp -R -f mosdns/* "$CONF_DIR/mosdns/" || log "$RED" "mosdns 文件复制失败！"
+cp -f rc.d/* "$RC_DIR/" || log "$RED" "rc.d 文件复制失败！"
+cp -f rc.conf/* "$RC_CONF/" || log "$RED" "rc.conf 文件复制失败！"
 cp -f plugins/* "$PLUGINS/" || log "$RED" "plugins 文件复制失败！"
 cp -f actions/* "$ACTIONS/" || log "$RED" "actions 文件复制失败！"
 cp -R -f menu/* "$MENU_DIR/" || log "$RED" "menu 文件复制失败！"
-cp rc.d/* "$RC_DIR/" || log "$RED" "rc.d 文件复制失败！"
-cp geo/* "$CONF_DIR/clash/" || log "$RED" "geo 文件复制失败！"
-cp conf/config_clash.yaml "$CONF_DIR/clash/config.yaml" || log "$RED" "clash 配置文件复制失败！"
-cp conf/config_tun2socks.yaml "$CONF_DIR/tun2socks/config.yaml" || log "$RED" "tun2socks 配置文件复制失败！"
-sleep 1
+cp -R -f conf/* "$CONF_DIR/clash/" || log "$RED" "conf 文件复制失败！"
+cp -R -f mosdns/* "$CONF_DIR/mosdns/" || log "$RED" "mosdns 文件复制失败！"
 
 # 新建订阅程序
 log "$YELLOW" "添加订阅..."
@@ -76,12 +71,9 @@ if ! pkg info -q bash > /dev/null 2>&1; then
   pkg install -y bash > /dev/null 2>&1
 fi
 
-# 添加服务启动项
-log "$YELLOW" "配置系统服务..."
-cp -f rc.conf/* "$RC_CONF/" || log "$RED" "rc.conf 文件复制失败！"
 # 启动Tun接口
-log "$YELLOW" "启动tun2socks..."
-service tun2socks start > /dev/null 2>&1
+log "$YELLOW" "启动clash..."
+service clash start > /dev/null 2>&1
 echo ""
 
 # 备份配置文件
@@ -93,7 +85,6 @@ cp "$CONFIG_FILE" "$BACKUP_FILE" || {
 
 # 添加tun接口
 log "$YELLOW" "添加tun接口..."
-sleep 1
 if grep -q "<if>tun_3000</if>" "$CONFIG_FILE"; then
   echo "存在同名接口，忽略"
   echo ""
@@ -176,7 +167,6 @@ fi
 
 # 添加防火墙规则（非中国IP走透明网关TUN_GW）
 log "$YELLOW" "添加防火墙规则..."
-sleep 1
 if grep -q "<gateway>TUN_GW</gateway>" "$CONFIG_FILE"; then
   echo "存在同名规则，忽略"
   echo ""
@@ -289,7 +279,6 @@ fi
 echo ""
 
 # 添加订阅和更新任务
-sleep 1
 log "$YELLOW" "添加订阅和GeoIP（程序）更新任务..."
 insert_job_if_missing() {
   CMD="$1"
@@ -391,5 +380,5 @@ echo ""
 # echo ""
 
 # 完成提示
-log "$GREEN" "安装完毕，请刷新浏览器，导航到VPN > Proxy Suite 进行配置。"
+log "$GREEN" "安装完毕，请刷新浏览器，导航到VPN > Proxy Suite 进行配置。配置完成，请重启防火墙让新配置生效。"
 echo ""

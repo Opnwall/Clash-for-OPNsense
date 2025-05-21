@@ -1,0 +1,39 @@
+port: 7890
+socks-port: 7891
+mode: rule
+ipv6: true
+tun:
+  enable: true
+  stack: gvisor   #在freebsd上只能使用gvisor。
+  device: tun_3000  
+  auto-route: false
+  auto-detect-interface: true
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+  strict-route: true
+  mtu: 1500
+log-level: info #稳定了以后，修改为error或warn，减少日志数量。
+unified-delay: true
+global-client-fingerprint: chrome
+external-controller: '0.0.0.0:9090'
+external-ui: /usr/local/etc/clash/ui
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: 
+    - 127.0.0.1:5335  #指向mosdns监听地址。
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
