@@ -2,23 +2,23 @@ port: 7890
 socks-port: 7891
 mode: rule
 ipv6: true
-tun:
-  enable: true
-  stack: gvisor   #在freebsd上只能使用gvisor。
-  device: tun_3000  
-  auto-route: false
-  auto-detect-interface: true
-  dns-hijack:
-    - any:53
-    - tcp://any:53
-  strict-route: true
-  mtu: 1500
-log-level: info #稳定了以后，修改为error或warn，减少日志数量。
+log-level: debug  #在调试结果后，改为error或warn，减少日志输出。
 unified-delay: true
 global-client-fingerprint: chrome
 external-controller: '0.0.0.0:9090'
 external-ui: /usr/local/etc/clash/ui
 secret: 123456
+tun:
+  enable: true
+  stack: gvisor   #在freebsd平台上不能设置为system。
+  device: tun_3000
+  mtu: 9000
+  auto-route: false
+  strict-route: true
+  auto-detect-interface: true
+  dns-hijack:
+    - any:53
+    - tcp://any:53
 dns:
   enable: true
   listen: 0.0.0.0:53
@@ -26,7 +26,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   default-nameserver: 
-    - 127.0.0.1:5335  #指向mosdns监听地址。
+    - 127.0.0.1:5335  #指向mosdns监听地址
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
@@ -38,6 +38,18 @@ dns:
     geoip-code: CN
     ipcidr:
       - 240.0.0.0/4
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "+.push.apple.com"
 proxies:
 - name: RN-vless               
   type: vless
@@ -256,4 +268,3 @@ rules:
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,🌍选择代理节点
-
