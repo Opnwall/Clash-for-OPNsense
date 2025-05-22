@@ -63,7 +63,7 @@ plugins:
           idle_timeout: 10
 
         - tag: google_dot
-          addr: "tls://1.1.1.1:853"
+          addr: "tls://8.8.8.8:853"
           enable_pipeline: true
           idle_timeout: 10
 
