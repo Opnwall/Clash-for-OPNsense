@@ -58,9 +58,22 @@ cat "$TEMPLATE_FILE" > "$TMP_FINAL"
 cat "$TMP_PROXIES" >> "$TMP_FINAL"
 cp "$TMP_FINAL" "$Conf_Dir/config.yaml"
 
-# 替换 dashboard 路径与 secret
+# 设置 external-ui
 sed -i '' "s@^# external-ui:.*@external-ui: ${Dashboard_Dir}@" "$Conf_Dir/config.yaml"
-sed -i '' -E "s@^secret:.*@secret: ${Secret}@" "$Conf_Dir/config.yaml"
+
+# 确保在 external-ui 行之后插入 secret
+if grep -q '^external-ui:' "$Conf_Dir/config.yaml"; then
+    awk -v secret="secret: ${Secret}" '
+      /^external-ui:/ {
+          print;
+          print secret;
+          next
+      }
+      { print }
+    ' "$Conf_Dir/config.yaml" > "$Conf_Dir/config.new.yaml" && mv "$Conf_Dir/config.new.yaml" "$Conf_Dir/config.yaml"
+else
+    echo "secret: ${Secret}" >> "$Conf_Dir/config.yaml"
+fi
 echo "合成完成!"
 echo ""
 
