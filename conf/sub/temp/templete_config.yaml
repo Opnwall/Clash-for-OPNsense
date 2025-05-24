@@ -7,7 +7,6 @@ unified-delay: true
 global-client-fingerprint: chrome
 external-controller: '0.0.0.0:9090'
 external-ui: /usr/local/etc/clash/ui
-secret: 123456
 tun:
   enable: true
   stack: gvisor
